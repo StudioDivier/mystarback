@@ -1,0 +1,8 @@
+venv/
+.idea/
+MyStar/config.py
+STATICFILES/
+api/migrations/
+users/migrations/
+media/
+log/custom_logger.log

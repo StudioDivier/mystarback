@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+    {% load socialaccount %}
+    <a href="{% provider_login_url "vk" method="oauth2" %}"> Войти через VK </a>
+</body>
+</html>
