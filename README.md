@@ -270,5 +270,88 @@ request(multipart/formdata):
 response:
     ![](readme/cong.png)
 
-   
-   
+
+# Yandex OAuth
+## Register
+### 1st STEP
+* http://192.168.1.131:8080/api/pre-yandex-oauth/
+
+response:
+    
+    {
+        "link": "https://oauth.yandex.ru/authorize?response_type=code&client_id=afd8fcd32b0b46f287e8d9671b29622c"
+    }
+    
+    приходит ссылка по которой пользователь должен перейти и пройти авторизацию в яндексе
+    идет редирект на 
+        * http://192.168.1.131:8080/api/mid-yandex/?code=4454043 
+        из которой нужно забрать параметр < code >
+      
+### 2nd STEP
+* http://192.168.1.131:8080/api/mid-yandex/ - [POST] запрос
+
+request:
+
+    {
+        "code": 4454043 
+    }
+
+response:
+
+    {
+        "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
+        "expires_in": 31358807,
+        "refresh_token": "1:X7VqP0qppNU4g3Hz:n4aer7Oj-VAiWgGLa2v7queoMfLIEhwwmzGqhqQC-bE6jobpsuSG:qDnvpdzSuOxe-L1Ryp9h2w",
+        "token_type": "bearer"
+    }
+    
+    сохранить в localeStorage: 
+        access_token
+        expires_in
+        refresh_token
+        
+###3d STEP
+* http://192.168.1.131:8080/api/yandex-oauth/ - [POST] - запрос
+
+request:
+
+    {
+        "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
+        "expires_in": 31445978,
+        "refresh_token": "1:-LkGm4lbjCn8YTC-:H14t5f5FmLrvZCZ2jUcrM1_kXNmt-hRrGqcrhB2kWJN39t_Wkdi-:_VuPZZzgDWo9aoki7ZWTnA"
+    }
+    
+response:
+
+    {
+        "id": 37,
+        "username": "mystar999",
+        "phone": 0,
+        "is_star": false,
+        "email": "mystar999@yandex.ru",
+        "avatar": "27503/4rPlOgcuh9aRm0UZIRLZMUzNb7k-1",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzcsImV4cCI6MTYwODQ1NTkyMH0.5voe3hImK8EjnSmUTDs4cLUrM1vnKY2UowMTu2BJB9I"
+    }
+    
+## LOGIN
+* http://192.168.1.131:8080/api/yandex-login/ - [POST] запрос
+
+request:
+
+    {
+        "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
+        "expires_in": 31445978,
+        "refresh_token": "1:-LkGm4lbjCn8YTC-:H14t5f5FmLrvZCZ2jUcrM1_kXNmt-hRrGqcrhB2kWJN39t_Wkdi-:_VuPZZzgDWo9aoki7ZWTnA"
+    }
+    
+response:
+
+    {
+        "id": 37,
+        "username": "mystar999",
+        "phone": 0,
+        "is_star": false,
+        "email": "mystar999@yandex.ru",
+        "avatar": "27503/4rPlOgcuh9aRm0UZIRLZMUzNb7k-1",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzcsImV4cCI6MTYwODQ1NTkyMH0.5voe3hImK8EjnSmUTDs4cLUrM1vnKY2UowMTu2BJB9I"
+    }

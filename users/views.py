@@ -677,7 +677,12 @@ class YandexLogInView(APIView):
     def post(self, request, format='format'):
         response = yandex.ya_auth(request.data['access_token'])
 
-        serializer = self.serializer_class(data=response)
+        data_log = {
+                    "email": response['default_email'],
+                    "password": response['id']
+                }
+
+        serializer = self.serializer_class(data=data_log)
 
         if serializer.is_valid():
             cust_set = Customers.objects.get(email=response['default_email'])
