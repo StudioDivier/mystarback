@@ -2,8 +2,8 @@ from django.contrib.auth import authenticate
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from .models import Customers, Stars, Users, Ratings, Orders, Categories, Avatars, Videos, Congratulations, Likes
-
+from .models import Customers, Stars, Users, Ratings, Orders, Categories, Avatars, Videos, \
+    Congratulations, Likes, MessageChats
 
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
@@ -235,6 +235,12 @@ class RegistrationSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Customers.objects.create_user(**validated_data)
+
+
+class MessageChatsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MessageChats
+        fields = ('from_user', 'star_id', 'cust_id', 'message',)
 
 
 class LikeSerializer(serializers.ModelSerializer):

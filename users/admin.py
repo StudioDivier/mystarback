@@ -60,4 +60,5 @@ admin.site.register(Categories, CategoryAdmin)
 admin.site.register(Stars, StarsAdmin)
 admin.site.register(Customers, CustomersAdmin)
 admin.site.register(Orders, OrdersAdmin)
+admin.site.register(ExtraCategories)
 

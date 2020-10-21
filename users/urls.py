@@ -3,7 +3,8 @@ from rest_framework import routers
 from .views import (
 CustomerCreate, StarCreate, StarsList, StarById, RateStar, StarByCategory,  OrderView, PersonalAccount,
 LoginAPIView, StarOrderAccepted, ListCategory, AvatarUploadView, VideohiView, CongratulationView, OrderDetailCustomerView,
-PreYandexView, YandexRegisterView, MidYandexView, OrdersListView, YandexLogInView, LikesView
+PreYandexView, YandexRegisterView, MidYandexView, OrdersListView, YandexLogInView, LikesView, TestView, ExtraCatListView,
+MessageView, PreVKView, MidVKView, VKRegisterView
 )
 
 from MyStar import settings
@@ -35,11 +36,20 @@ urlpatterns = [
     path('order/cust/detail/', OrderDetailCustomerView.as_view(), name=None),
 
     path('personal/', PersonalAccount.as_view(), name=None),
+    path('message/', MessageView.as_view(), name=None),
+
+    path('extra-cat/', ExtraCatListView.as_view(), name=None),
 
     path('pre-yandex-oauth/', PreYandexView.as_view(), name=None),
     path('mid-yandex/', MidYandexView.as_view(), name=None),
     path('yandex-oauth/', YandexRegisterView.as_view(), name=None),
     path('yandex-login/', YandexLogInView.as_view(), name=None),
+
+    path('pre-vk-oauth/', PreVKView.as_view(), name=None),
+    path('mid-vk/', MidVKView.as_view(), name=None),
+    path('vk-oauth/', VKRegisterView.as_view(), name=None),
+
+    path('test/', TestView.as_view(), name=None)
 ]
 
 # router = routers.DefaultRouter()

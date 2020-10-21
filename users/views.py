@@ -16,14 +16,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes
-from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers
+from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, ExtraCategories
+from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats
 from .serializers import LoginSerializer, UserSerializer, RegistrationSerializer, CategorySerializer
 from .serializers import CustomerSerializer, StarSerializer, RatingSerializer, OrderSerializer, AvatarSerializer
 from .serializers import VideoSerializer, CongratulationSerializer, ProfileCustomerSerializer, ProfileStarSerializer
-from .serializers import LikeSerializer
+from .serializers import LikeSerializer, MessageChatsSerializer
 
-from .services.auth import yandex
+from .services.auth import yandex, vk
 from .services.database import put
 from .services.database import get
 
@@ -196,6 +196,8 @@ class StarByCategory(APIView):
             serial_avatar = AvatarSerializer(avatar_set, many=True)
             avatar_data = serial_avatar.data
             for i in range(len(json)):
+                set = Likes.objects.filter(star_id=json[i]['id']).count()
+                json[i]['likes'] = set
                 for j in range(len(avatar_data)):
                     if json[i]['id'] == avatar_data[j]['user_id']:
                         json[i]['avatar'] = avatar_data[j]['image']
@@ -240,30 +242,35 @@ class RateStar(APIView):
                  404 - не валидные id
         """
         res: int() = 0
-        serializer = RatingSerializer(data=request.data)
 
-        if serializer.is_valid():
-            rating = serializer.save()
-            if rating:
-                # json = serializer.data
-                queryset = Ratings.objects.filter(adresant=request.data['adresant'])
-                serializtor = RatingSerializer(queryset, many=True)
-                json = serializtor.data
+        try:
+            obj = Ratings.objects.get(adresant=request.data['adresant'], adresat=request.data['adresat'])
+            return Response({'Рейтинг уже выставлен'}, status=status.HTTP_403_FORBIDDEN)
+        except Ratings.DoesNotExist:
+            serializer = RatingSerializer(data=request.data)
 
-                for i in range(len(json)):
-                    res += json[i]['rating']
-                uprate = ceil(res / len(json))
+            if serializer.is_valid():
+                rating = serializer.save()
+                if rating:
+                    # json = serializer.data
+                    queryset = Ratings.objects.filter(adresant=request.data['adresant'])
+                    serializtor = RatingSerializer(queryset, many=True)
+                    json = serializtor.data
 
-                starset = Stars.objects.get(users_ptr_id=request.data['adresant'])
-                starset.rating = str(uprate)
-                starset.save()
-                # serialstar = StarSerializer(data=starset, partial=True)
-                # if serialstar.is_valid():
-                return Response({"Оценка выставлена"}, status=status.HTTP_201_CREATED)
+                    for i in range(len(json)):
+                        res += json[i]['rating']
+                    uprate = ceil(res / len(json))
 
-                # return Response(serializer.errors, status=status.HTTP_418_IM_A_TEAPOT)
+                    starset = Stars.objects.get(users_ptr_id=request.data['adresant'])
+                    starset.rating = str(uprate)
+                    starset.save()
+                    # serialstar = StarSerializer(data=starset, partial=True)
+                    # if serialstar.is_valid():
+                    return Response({"Оценка выставлена"}, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                    # return Response(serializer.errors, status=status.HTTP_418_IM_A_TEAPOT)
+
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OrderView(APIView):
@@ -482,13 +489,15 @@ class PersonalAccount(APIView):
             star_cust = ProfileStarSerializer(star_set, many=True)
             json = star_cust.data
 
+            set = Likes.objects.filter(star_id=user_id).count()
+            json[0]['likes'] = set
+
             return Response(json, status=status.HTTP_200_OK)
 
         if is_star == 'false':
             user_set = Customers.objects.get(id=user_id)
             serial_user = ProfileCustomerSerializer(user_set)
             json = serial_user.data
-
 
             return Response(json, status=status.HTTP_200_OK)
 
@@ -582,8 +591,56 @@ class OrderDetailCustomerView(APIView):
 
 
 # Extra Categories View
+class ExtraCatListView(APIView):
+    permission_classes = [IsAuthenticated]
 
-# Likes
+    def get(self, request, format='json'):
+        extra_filed = request.GET.get("extra_filed", "")
+        extra_cat = ExtraCategories.objects.filter(filed=extra_filed)
+        return Response(extra_cat, status=status.HTTP_200_OK)
+
+
+# Message View
+class MessageView(APIView):
+
+    permission_classes = [IsAuthenticated]
+
+    @logger.catch()
+    def get(self, request, format='json'):
+        from_user = request.GET.get("from_user", "")
+        star_id = request.GET.get("star_id", "")
+        cust_id = request.GET.get("cust_id", "")
+        chat_id = int(star_id) + int(cust_id)
+
+        try:
+            chat_id_set = MessageChats.objects.filter(chat_id=chat_id)
+            seria_chat = MessageChatsSerializer(data=chat_id_set)
+            try:
+                json = seria_chat.data
+                return Response(json, status=status.HTTP_200_OK)
+            except AssertionError:
+                obj = chat_id_set.all()
+                s_obj = MessageChatsSerializer(data=obj)
+                if s_obj.is_valid():
+                    data = {
+                        '1': s_obj.data
+                    }
+                    return Response(data=data, status=status.HTTP_200_OK)
+        except MessageChats.DoesNotExist:
+            return Response({'Сообщений нет'})
+
+    def post(self, request, format='json'):
+        chat_id = int(request.data['star_id']) + int(request.data['cust_id'])
+        try:
+            obj = MessageChats(chat_id=chat_id, from_user=request.data['from_user'], message=request.data['message'])
+            obj.save()
+            return Response({'Отправлено'}, status=status.HTTP_200_OK)
+
+        except:
+            return Response({'неа'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Likes View
 class LikesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -616,8 +673,9 @@ class PreYandexView(APIView):
 class MidYandexView(APIView):
     permission_classes = [AllowAny]
 
-    def post(self, request, format='json'):
-        response = yandex.token(request.data['code'])
+    def get(self, request, format='json'):
+        code = request.GET.get("code", "")
+        response = yandex.token(code)
 
         return Response(response, status=status.HTTP_201_CREATED)
 
@@ -628,6 +686,77 @@ class YandexRegisterView(APIView):
 
     def post(self, request, format='json'):
         response = yandex.ya_auth(request.data['access_token'])
+        username = response['login']
+        email = response['default_email']
+        if response['birthday'] == None:
+            date_of_birth = '2000-05-05'
+        else:
+            date_of_birth = response['birthday']
+        avatar = response['default_avatar_id']
+        phone = '000000000000'
+        data = {
+            'username': username,
+            'phone': phone,
+            'email': email,
+            'date_of_birth': date_of_birth,
+            'password': response['id'],
+            'register': 'yandex'
+        }
+
+        serializer = self.serializer_class(data=data)
+        if serializer.is_valid():
+            serializer.save()
+
+            new = Users.objects.get(username=username)
+            new.register = 'yandex'
+            new.avatar = avatar
+            new.save()
+
+            yandex_data = YandexUsers.objects.create(id_yandex=response['id'],
+                                                     access_token=request.data['access_token'],
+                                                     refresh_token=request.data['refresh_token'],
+                                                     expires_in=request.data['expires_in'])
+            yandex_data.save()
+
+            return Response(
+                data={
+                    'token': serializer.data.get('token', None),
+                },
+                status=status.HTTP_201_CREATED,
+            )
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
+# Register via VK API
+class PreVKView(APIView):
+    """
+    Временная тестовая вьюшка
+    """
+    permission_classes = [AllowAny]
+
+    @logger.catch()
+    def get(self, request, format='json'):
+        response = vk.send_request()
+        json = {'link': response}
+        return Response(json, status=status.HTTP_200_OK)
+
+
+class MidVKView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format='json'):
+        code = request.GET.get("code", "")
+        response = vk.token(code)
+
+        return Response(response, status=status.HTTP_201_CREATED)
+
+
+class VKRegisterView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = RegistrationSerializer
+
+    def post(self, request, format='json'):
+        response = vk.vk_auth(request.data['access_token'])
         username = response['login']
         email = response['default_email']
         if response['birthday'] == None:
@@ -697,5 +826,16 @@ class YandexLogInView(APIView):
             }
             return Response(json, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+
+# test
+class TestView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format='json'):
+        set = Likes.objects.filter(star_id=request.data['star_id']).count()
+
+        return Response(set, status=status.HTTP_200_OK)
+
 
 

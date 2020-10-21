@@ -285,32 +285,24 @@ response:
     приходит ссылка по которой пользователь должен перейти и пройти авторизацию в яндексе
     идет редирект на 
         * http://192.168.1.131:8080/api/mid-yandex/?code=4454043 
-        из которой нужно забрать параметр < code >
-      
-### 2nd STEP
-* http://192.168.1.131:8080/api/mid-yandex/ - [POST] запрос
-
-request:
-
-    {
-        "code": 4454043 
-    }
-
-response:
-
-    {
-        "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
-        "expires_in": 31358807,
-        "refresh_token": "1:X7VqP0qppNU4g3Hz:n4aer7Oj-VAiWgGLa2v7queoMfLIEhwwmzGqhqQC-bE6jobpsuSG:qDnvpdzSuOxe-L1Ryp9h2w",
-        "token_type": "bearer"
-    }
-    
-    сохранить в localeStorage: 
-        access_token
-        expires_in
-        refresh_token
         
-###3d STEP
+        который отдает:
+        
+        response:
+        
+            {
+                "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
+                "expires_in": 31358807,
+                "refresh_token": "1:X7VqP0qppNU4g3Hz:n4aer7Oj-VAiWgGLa2v7queoMfLIEhwwmzGqhqQC-bE6jobpsuSG:qDnvpdzSuOxe-L1Ryp9h2w",
+                "token_type": "bearer"
+            }
+            
+            сохранить в localeStorage: 
+                access_token
+                expires_in
+                refresh_token
+        
+###2nd STEP
 * http://192.168.1.131:8080/api/yandex-oauth/ - [POST] - запрос
 
 request:

@@ -245,6 +245,16 @@ class Likes(models.Model):
         unique_together = ('star_id', 'cust_id')
 
 
+class MessageChats(models.Model):
+    chat_id = models.IntegerField(name='chat_id')
+    from_user = models.IntegerField(name='from_user')
+    message = models.CharField(name='message', max_length=256)
+
+    def __str__(self):
+        return "message from user {}".format(self.from_user)
+
+
+
 class Orders(models.Model):
     """
     Модель для Заказов
