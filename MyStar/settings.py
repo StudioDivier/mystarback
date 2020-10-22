@@ -57,6 +57,8 @@ INSTALLED_APPS = [
     'django_rest_passwordreset',
     'yandex_checkout',
 
+    'taggit',
+
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

@@ -100,6 +100,42 @@ response:
             "is_star": true
         }
     ]
+    
+*http://192.168.1.131:8080/api/star/filter/ - [POST] получить список звезд по тегам
+
+request:
+
+    {
+        "filter": "Дом-2"
+    }
+    
+response:
+
+    [
+        {
+            "id": 39,
+            "last_login": null,
+            "first_name": "",
+            "last_name": "",
+            "date_joined": "2020-10-21T06:41:01.731831Z",
+            "username": "poor10",
+            "phone": 9989991122,
+            "email": "poor10@test.com",
+            "password": "pbkdf2_sha256$216000$w6IYSb1ZRKYh$cAFU9w9CNMANfouy74VSyBFllAYSIC+URr7l+8m8LyU=",
+            "avatar": "media/avatars/1.jpg",
+            "is_star": true,
+            "is_staff": false,
+            "is_superuser": false,
+            "is_active": true,
+            "register": "True",
+            "users_ptr_id": 39,
+            "price": 45000.0,
+            "cat_name_id_id": 2,
+            "rating": 5,
+            "days": "0",
+            "video_hi": "/1.jpg"
+        }
+    ]
 
 * http://192.168.1.131:8080/api/ratestar/ - [PUT] проголосовать за звезду
 
@@ -244,14 +280,19 @@ response:
         }
     ]
 
+
+# Платежка
+## Создать платеж
 * http://192.168.1.131:8080/payments/?order_id=1 - создание платежа (холд)
 
     редирект на страницу оплаты
-    
+
+## Списание денег
 * http://192.168.1.131:8080/payments/notifications/ -  списание денег
    
    редирект на страницу оплаты
-   
+
+# Загрузки файлов
 * http://192.168.1.131:8080/api/upload/avatar/ - загрузить фотку (до 15 мб)
 
 request(multipart/formdata):
@@ -270,6 +311,67 @@ request(multipart/formdata):
 response:
     ![](readme/cong.png)
 
+
+# Messages
+## Отправка сообщения
+* http://192.168.1.131:8080/api/message/ -[POST] -запрос
+
+request:
+    
+    {
+        "from_user": 4,
+        "user_id": 37,
+        "message": "hi!"
+    }
+    
+response:
+
+    [
+        "Отправлено"
+    ] 
+    200 OK
+    
+    
+    [
+        "ошибка при отправке"
+    ] 
+    404 OK
+
+## Получить список сообщений
+* http://192.168.1.131:8080/api/message/?user_id=<id>&from_user=<id>
+
+response:
+
+    [
+        {
+            "id": 16,
+            "chat_id": 41,
+            "from_user": 37,
+            "message_id": 1,
+            "message": "hi"
+        },
+        {
+            "id": 17,
+            "chat_id": 41,
+            "from_user": 4,
+            "message_id": 2,
+            "message": "wru want?"
+        },
+        {
+            "id": 18,
+            "chat_id": 41,
+            "from_user": 37,
+            "message_id": 3,
+            "message": "nthk"
+        },
+        {
+            "id": 19,
+            "chat_id": 41,
+            "from_user": 4,
+            "message_id": 4,
+            "message": "well"
+        }
+    ]
 
 # Yandex OAuth
 ## Register

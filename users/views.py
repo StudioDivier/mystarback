@@ -1,12 +1,14 @@
 from math import ceil
 import uuid
 from PIL import Image
+import simplejson
 from loguru import logger
 from django_rest_api_logger import APILoggingMixin
 from django.shortcuts import render
 from django.contrib.auth import login
 from django.core.mail import send_mail
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets, filters
 from rest_framework.generics import ListAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,7 +18,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 
-from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, ExtraCategories
+from django.forms.models import model_to_dict
+
+
+from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers
 from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats
 from .serializers import LoginSerializer, UserSerializer, RegistrationSerializer, CategorySerializer
 from .serializers import CustomerSerializer, StarSerializer, RatingSerializer, OrderSerializer, AvatarSerializer
@@ -26,6 +31,7 @@ from .serializers import LikeSerializer, MessageChatsSerializer
 from .services.auth import yandex, vk
 from .services.database import put
 from .services.database import get
+from .services import mail
 
 logger.add("log/debug.json", level="DEBUG", format="{time} {level} {message}", serialize=True,
            rotation="1 MB", compression="zip")
@@ -167,10 +173,26 @@ class StarsList(APIView):
 
     @logger.catch()
     def get(self, request, format='json'):
-        stars_list = Stars.objects.all()
-        serializer = StarSerializer(stars_list, many=True)
-        json = serializer.data
-        return Response(json, status=status.HTTP_200_OK)
+        stars_list = Stars.objects.filter().values()
+
+        for i in range(len(stars_list)):
+            star_ex = Stars.objects.get(users_ptr_id=stars_list[i]['id'])
+            tags = star_ex.tags.all().values()
+            stars_list[i]['tags'] = tags
+
+        return Response(stars_list, status=status.HTTP_200_OK)
+
+
+class StarTagFilter(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, format='json'):
+        filter = []
+        for key, value in request.data.items():
+            filter.append(key)
+            filter.append(value)
+        star_ex = Stars.objects.filter(tags__name__in=filter).values()
+        return Response(star_ex, status=status.HTTP_200_OK)
 
 
 class StarByCategory(APIView):
@@ -441,10 +463,14 @@ class OrdersListView(APIView):
 
                 set_star = Stars.objects.get(users_ptr_id=order_set[0].star_id_id)
                 star = set_star.username
+                avatar = set_star.avatar
+                cat_id = set_star.cat_name_id.cat_name
 
                 response = {
                     'data': {
+                        'cat_name': cat_id,
                         'star': star,
+                        'avatar': avatar,
                         'customer': username,
                     },
                     'orders': serial_orders.data
@@ -590,16 +616,6 @@ class OrderDetailCustomerView(APIView):
             return Response(json, status=status.HTTP_200_OK)
 
 
-# Extra Categories View
-class ExtraCatListView(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, format='json'):
-        extra_filed = request.GET.get("extra_filed", "")
-        extra_cat = ExtraCategories.objects.filter(filed=extra_filed)
-        return Response(extra_cat, status=status.HTTP_200_OK)
-
-
 # Message View
 class MessageView(APIView):
 
@@ -608,36 +624,39 @@ class MessageView(APIView):
     @logger.catch()
     def get(self, request, format='json'):
         from_user = request.GET.get("from_user", "")
-        star_id = request.GET.get("star_id", "")
-        cust_id = request.GET.get("cust_id", "")
-        chat_id = int(star_id) + int(cust_id)
-
+        user_id = request.GET.get("user_id", "")
+        chat_id = int(from_user) + int(user_id)
         try:
-            chat_id_set = MessageChats.objects.filter(chat_id=chat_id)
-            seria_chat = MessageChatsSerializer(data=chat_id_set)
-            try:
-                json = seria_chat.data
-                return Response(json, status=status.HTTP_200_OK)
-            except AssertionError:
-                obj = chat_id_set.all()
-                s_obj = MessageChatsSerializer(data=obj)
-                if s_obj.is_valid():
-                    data = {
-                        '1': s_obj.data
-                    }
-                    return Response(data=data, status=status.HTTP_200_OK)
+            msg = MessageChats.objects.filter(chat_id=chat_id).order_by('message_id').values()
+            if not msg:
+                raise MessageChats.DoesNotExist
+            else:
+                return Response(msg, status=status.HTTP_200_OK)
         except MessageChats.DoesNotExist:
-            return Response({'Сообщений нет'})
+            return Response({'сообщений нет'}, status=status.HTTP_404_NOT_FOUND)
 
+
+    @logger.catch()
     def post(self, request, format='json'):
-        chat_id = int(request.data['star_id']) + int(request.data['cust_id'])
+        chat_id = int(request.data['from_user']) + int(request.data['user_id'])
         try:
-            obj = MessageChats(chat_id=chat_id, from_user=request.data['from_user'], message=request.data['message'])
+            msg_history = len(MessageChats.objects.filter(chat_id=chat_id))
+            msg_id = msg_history + 1
+            obj = MessageChats(chat_id=chat_id, from_user=request.data['from_user'],
+                               message=request.data['message'], message_id=msg_id)
             obj.save()
-            return Response({'Отправлено'}, status=status.HTTP_200_OK)
 
+            try:
+                star = Stars.objects.get(users_ptr_id=request.data['user_id'])
+
+                if star.is_star:
+                    mail.notification_self_mail(star=star.id)
+            except Stars.DoesNotExist:
+                pass
+
+            return Response({'Отправлено'}, status=status.HTTP_200_OK)
         except:
-            return Response({'неа'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'ошибка при отправке'}, status=status.HTTP_404_NOT_FOUND)
 
 
 # Likes View
@@ -729,9 +748,7 @@ class YandexRegisterView(APIView):
 
 # Register via VK API
 class PreVKView(APIView):
-    """
-    Временная тестовая вьюшка
-    """
+
     permission_classes = [AllowAny]
 
     @logger.catch()
@@ -757,21 +774,21 @@ class VKRegisterView(APIView):
 
     def post(self, request, format='json'):
         response = vk.vk_auth(request.data['access_token'])
-        username = response['login']
-        email = response['default_email']
-        if response['birthday'] == None:
-            date_of_birth = '2000-05-05'
-        else:
-            date_of_birth = response['birthday']
-        avatar = response['default_avatar_id']
+        username = response['screen_name']
+        f_name = response['first_name']
+        l_name = response['last_name']
+        birth_day = response['bdate']
+        pword = response['id']
+        photo = response['photo_nax_orig']
         phone = '000000000000'
+        email = 'vl@vk.vk'
         data = {
             'username': username,
             'phone': phone,
             'email': email,
-            'date_of_birth': date_of_birth,
-            'password': response['id'],
-            'register': 'yandex'
+            'date_of_birth': birth_day,
+            'password': pword,
+            'register': 'vk',
         }
 
         serializer = self.serializer_class(data=data)
@@ -779,15 +796,17 @@ class VKRegisterView(APIView):
             serializer.save()
 
             new = Users.objects.get(username=username)
-            new.register = 'yandex'
-            new.avatar = avatar
+            new.register = 'vk'
+            new.avatar = photo
+            new.first_name = f_name
+            new.last_name = l_name
             new.save()
 
-            yandex_data = YandexUsers.objects.create(id_yandex=response['id'],
+            vk_data = VkUsers.objects.create(id_yandex=response['id'],
                                                      access_token=request.data['access_token'],
                                                      refresh_token=request.data['refresh_token'],
                                                      expires_in=request.data['expires_in'])
-            yandex_data.save()
+            vk_data.save()
 
             return Response(
                 data={
@@ -795,7 +814,7 @@ class VKRegisterView(APIView):
                 },
                 status=status.HTTP_201_CREATED,
             )
-        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+        return Response(response, status=status.HTTP_404_NOT_FOUND)
 
 
 # Login via Yandex API
@@ -827,6 +846,35 @@ class YandexLogInView(APIView):
             return Response(json, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
+
+# Login via VK API
+class VKLogInView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = LoginSerializer
+
+    def post(self, request, format='format'):
+        response = vk.vk_auth(request.data['access_token'])
+
+        data_log = {
+                    "email": response['default_email'],
+                    "password": response['id']
+                }
+
+        serializer = self.serializer_class(data=data_log)
+
+        if serializer.is_valid():
+            cust_set = Customers.objects.get(email=response['default_email'])
+            json = {
+                'id': cust_set.id,
+                'username': cust_set.username,
+                'phone': cust_set.phone,
+                'is_star': cust_set.is_star,
+                'email': cust_set.email,
+                'avatar': cust_set.avatar,
+                'token': cust_set.token
+            }
+            return Response(json, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 # test
 class TestView(APIView):

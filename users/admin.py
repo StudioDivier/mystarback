@@ -1,11 +1,8 @@
 from django.contrib import admin
-from .models import Stars, Customers, Categories, Orders, ExtraCategories
+from .models import Stars, Customers, Categories, Orders
 
 
-class ExtraCatAdmin(admin.TabularInline):
-    model = ExtraCategories
-
-
+@admin.register(Stars)
 class StarsAdmin(admin.ModelAdmin):
     """
     Админка для CRUD звезд
@@ -19,12 +16,13 @@ class StarsAdmin(admin.ModelAdmin):
         ('Коммерческая информация', {
             'fields': ('cat_name_id', 'price', 'rating')
         }),
+        ('Теги звезды', {
+            'fields': ('tags', )
+        }),
     )
-    inlines = [
-        ExtraCatAdmin
-    ]
 
 
+@admin.register(Customers)
 class CustomersAdmin(admin.ModelAdmin):
     """
     Админка для CRUD заказчиков
@@ -32,6 +30,7 @@ class CustomersAdmin(admin.ModelAdmin):
     list_display = ('email', 'username', 'date_of_birth')
 
 
+@admin.register(Categories)
 class CategoryAdmin(admin.ModelAdmin):
     """
     Админка для CRUD категорий
@@ -39,6 +38,7 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('cat_name',)
 
 
+@admin.register(Orders)
 class OrdersAdmin(admin.ModelAdmin):
     """
     Админка для CRUD заказов
@@ -54,11 +54,3 @@ class OrdersAdmin(admin.ModelAdmin):
             'fields': ('order_price', 'ordering_time')
         }),
     )
-
-
-admin.site.register(Categories, CategoryAdmin)
-admin.site.register(Stars, StarsAdmin)
-admin.site.register(Customers, CustomersAdmin)
-admin.site.register(Orders, OrdersAdmin)
-admin.site.register(ExtraCategories)
-

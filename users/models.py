@@ -1,4 +1,5 @@
 import jwt
+from taggit.managers import TaggableManager
 
 from datetime import datetime
 from datetime import timedelta
@@ -225,15 +226,12 @@ class Stars(Users):
     rating = models.IntegerField(name='rating')
     days = models.CharField(name='days', default='0', max_length=8)
     video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/1.jpg')
+    tags = TaggableManager()
+
 
     class Meta:
         verbose_name = 'Star'
         verbose_name_plural = 'Stars'
-
-
-class ExtraCategories(models.Model):
-    field = models.CharField(name='filed', max_length=128, unique=True)
-    star_id = models.ForeignKey(Stars, to_field='users_ptr_id', on_delete=models.SET_NULL, null=True, blank=True)
 
 
 class Likes(models.Model):
@@ -248,6 +246,7 @@ class Likes(models.Model):
 class MessageChats(models.Model):
     chat_id = models.IntegerField(name='chat_id')
     from_user = models.IntegerField(name='from_user')
+    message_id = models.IntegerField(name='message_id')
     message = models.CharField(name='message', max_length=256)
 
     def __str__(self):
@@ -273,6 +272,7 @@ class Orders(models.Model):
     order_price = models.DecimalField(name='order_price', max_digits=9, decimal_places=2)
     ordering_time = models.DateTimeField(name='ordering_time', default=timezone.now)
     by_date = models.DateField(name='by_date', default=None)
+    by_time = models.TimeField(name='by_time', default=datetime.today().strftime('%H:%M'))
     for_whom = models.CharField(name='for_whom', max_length=128)
     comment = models.TextField(name='comment')
     status_order = models.IntegerField(name='status_order', default=0)
@@ -303,6 +303,13 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 
 class YandexUsers(models.Model):
     id_yandex = models.BigIntegerField(name='id_yandex', unique=True)
+    access_token = models.CharField(name='access_token', max_length=256)
+    refresh_token = models.CharField(name='refresh_token', max_length=256)
+    expires_in = models.BigIntegerField(name='expires_in')
+
+
+class VkUsers(models.Model):
+    id_vk = models.BigIntegerField(name='id_vk', unique=True)
     access_token = models.CharField(name='access_token', max_length=256)
     refresh_token = models.CharField(name='refresh_token', max_length=256)
     expires_in = models.BigIntegerField(name='expires_in')

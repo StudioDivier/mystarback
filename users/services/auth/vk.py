@@ -5,7 +5,7 @@ from MyStar import config
 
 client_id = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_KEY
 client_secret = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_SECRET
-redirect = 'http://192.168.1.131:8080/api/star/getlist/'
+redirect = 'http://192.168.1.131:8080/api/mid-vk/'
 
 
 def send_request():
@@ -15,9 +15,9 @@ def send_request():
     }
 
     link = f'https://oauth.vk.com/authorize?client_id={client_id}&' \
-           f'display=mobile&' \
+           f'display=page&' \
            f'redirect_uri={redirect}&' \
-           f'scope=friends&' \
+           f'scope=email,offline&' \
            f'response_type=code&' \
            f'v=5.124'
 
@@ -45,12 +45,13 @@ def token(r):
 def vk_auth(r):
     auth = 'https://api.vk.com/method/users.get'
     auth_param = {
-        'fields': 'uid,first_name,last_name,screen_name,sex,bdate,photo_big',
+        'fields': 'uid,login,first_name,last_name,screen_name,has_mobile,bdate,photo_max_orig,mail, email',
         'access_token': r,
+        'scope': 'email, offline',
         'v': 5.124
     }
 
     response = re.get(url=auth, params=auth_param)
-    s = json.loads(response.text)
-
-    return s
+    s = json.loads(response.content)
+    data = s['response'][0]
+    return data

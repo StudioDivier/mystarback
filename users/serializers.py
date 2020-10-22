@@ -142,7 +142,7 @@ class StarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stars
         fields = ('id', 'username', 'password', 'phone', 'email', 'price',
-                  'cat_name_id', 'rating', 'is_star', 'days')
+                  'cat_name_id', 'rating', 'is_star', 'video_hi', 'days')
 
     def create(self, validated_data):
         star = Stars(
@@ -190,8 +190,8 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Orders
-        fields = ('customer_id', 'star_id', 'payment_id', 'order_price',
-                  'by_date', 'for_whom', 'comment', 'status_order')
+        fields = ('id', 'customer_id', 'star_id', 'payment_id', 'order_price',
+                  'by_date', 'by_time', 'for_whom', 'comment', 'status_order')
 
     def update(self, instance, validated_data):
         instance.price = validated_data.get('order_price', instance.price)
@@ -240,7 +240,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
 class MessageChatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageChats
-        fields = ('from_user', 'star_id', 'cust_id', 'message',)
+        fields = ('from_user', 'star_id', 'cust_id', 'message', 'message_id', )
 
 
 class LikeSerializer(serializers.ModelSerializer):
