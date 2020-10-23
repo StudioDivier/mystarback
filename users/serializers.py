@@ -5,6 +5,7 @@ from rest_framework.validators import UniqueValidator
 from .models import Customers, Stars, Users, Ratings, Orders, Categories, Avatars, Videos, \
     Congratulations, Likes, MessageChats
 
+
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatars
@@ -142,7 +143,7 @@ class StarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stars
         fields = ('id', 'username', 'password', 'phone', 'email', 'price',
-                  'cat_name_id', 'rating', 'is_star', 'video_hi', 'days')
+                  'cat_name_id', 'profession', 'rating', 'is_star', 'video_hi', 'days')
 
     def create(self, validated_data):
         star = Stars(

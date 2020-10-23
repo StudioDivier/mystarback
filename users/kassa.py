@@ -12,8 +12,10 @@ from rest_framework.permissions import AllowAny
 from MyStar.config import ID_KASSA, SK_KASSA
 from users.serializers import OrderSerializer
 from users.models import Orders
+from loguru import logger
 
-logger = logging.getLogger(__name__)
+logger.add("log/debug.json", level="DEBUG", format="{time} {level} {message}", serialize=True,
+           rotation="1 MB", compression="zip")
 
 Configuration.account_id = ID_KASSA
 Configuration.secret_key = SK_KASSA
@@ -25,6 +27,7 @@ class YandexPayment(APIView):
     """
     permission_classes = [AllowAny]
 
+    @logger.catch()
     def get(self, type_id):
         """
         Принимаем payment_id
@@ -69,6 +72,7 @@ class YandexNotification(APIView):
 
     permission_classes = [AllowAny]
 
+    @logger.catch()
     def post(self, request):
         """
         Подтверждение платежа и смена статуса заказа

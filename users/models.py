@@ -226,6 +226,7 @@ class Stars(Users):
     rating = models.IntegerField(name='rating')
     days = models.CharField(name='days', default='0', max_length=8)
     video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/1.jpg')
+    profession = models.CharField(name='profession', max_length=32)
     tags = TaggableManager()
 
 
@@ -251,7 +252,6 @@ class MessageChats(models.Model):
 
     def __str__(self):
         return "message from user {}".format(self.from_user)
-
 
 
 class Orders(models.Model):

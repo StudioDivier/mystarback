@@ -20,7 +20,6 @@ from rest_framework.authtoken.models import Token
 
 from django.forms.models import model_to_dict
 
-
 from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers
 from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats
 from .serializers import LoginSerializer, UserSerializer, RegistrationSerializer, CategorySerializer
@@ -342,7 +341,11 @@ class OrderView(APIView):
                     star_username, star_price
                 )
                 send_mail(SUBJECT, TEXT_MESASGE, settings.EMAIL_HOST_USER, [star_email])
-                return Response({'Заказ создан!'}, status=status.HTTP_201_CREATED)
+                data = {
+                    'order_id': order_serializer.data['id'],
+                    'message': 'Заказ создан!',
+                }
+                return Response(data, status=status.HTTP_201_CREATED)
         else:
             json = {
                 'Неверные данные для создания заказа.'
