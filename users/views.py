@@ -417,7 +417,6 @@ class OrderPayCapture(APIView):
         return Response({'link': link}, status=status.HTTP_200_OK)
 
 
-
 class ListCategory(APIView):
     permission_classes = [IsAuthenticated]
 

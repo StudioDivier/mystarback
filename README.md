@@ -285,12 +285,14 @@ response:
 ## Создать платеж
 * http://192.168.1.131:8080/api/order/pay/?order_id=56 - создание платежа (холд)
 
+
     {
         "link": "http://192.168.1.131:8080/payments/?order_id=56"
     }
 
 ## Списание денег
 * http://192.168.1.131:8080/api/order/pay/capture/?order_id=56 -  списание денег
+   
    
    {
         "link": "http://192.168.1.131:8080/payments/notifications/?order_id56"
