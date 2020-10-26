@@ -399,6 +399,25 @@ class StarOrderAccepted(APIView):
         return Response(status=status.HTTP_201_CREATED)
 
 
+class OrderPay(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format='json'):
+        order_id = request.GET.get("order_id", "")
+        link = 'http://192.168.1.131:8080/payments/?order_id={}'.format(order_id)
+        return Response({'link': link}, status=status.HTTP_200_OK)
+
+
+class OrderPayCapture(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format='json'):
+        order_id = request.GET.get("order_id", "")
+        link = 'http://192.168.1.131:8080/payments/notifications/?order_id{}'.format(order_id)
+        return Response({'link': link}, status=status.HTTP_200_OK)
+
+
+
 class ListCategory(APIView):
     permission_classes = [IsAuthenticated]
 

@@ -4,7 +4,7 @@ from .views import (
 CustomerCreate, StarCreate, StarsList, StarById, RateStar, StarByCategory,  OrderView, PersonalAccount,
 LoginAPIView, StarOrderAccepted, ListCategory, AvatarUploadView, VideohiView, CongratulationView, OrderDetailCustomerView,
 PreYandexView, YandexRegisterView, MidYandexView, OrdersListView, YandexLogInView, LikesView, TestView,
-MessageView, PreVKView, MidVKView, VKRegisterView, StarTagFilter
+MessageView, PreVKView, MidVKView, VKRegisterView, StarTagFilter, OrderPay, OrderPayCapture
 )
 
 from MyStar import settings
@@ -35,6 +35,8 @@ urlpatterns = [
     path('order/list/', OrdersListView.as_view(), name=None),
     path('order/accept/', StarOrderAccepted.as_view(), name=None),
     path('order/cust/detail/', OrderDetailCustomerView.as_view(), name=None),
+    path('order/pay/', OrderPay.as_view(), name=None),
+    path('order/pay/capture/', OrderPayCapture.as_view(), name=None),
 
     path('personal/', PersonalAccount.as_view(), name=None),
     path('message/', MessageView.as_view(), name=None),
