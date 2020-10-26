@@ -142,7 +142,7 @@ class StarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Stars
-        fields = ('id', 'username', 'password', 'phone', 'email', 'price',
+        fields = ('id', 'username', 'first_name', 'last_name', 'password', 'phone', 'description', 'email', 'price',
                   'cat_name_id', 'profession', 'rating', 'is_star', 'video_hi', 'days')
 
     def create(self, validated_data):

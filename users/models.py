@@ -228,7 +228,7 @@ class Stars(Users):
     video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/1.jpg')
     profession = models.CharField(name='profession', max_length=32)
     tags = TaggableManager()
-
+    description = models.CharField(name='description', max_length=2048)
 
     class Meta:
         verbose_name = 'Star'

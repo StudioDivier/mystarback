@@ -50,7 +50,7 @@ class YandexPayment(APIView):
                 "return_url": "http://192.168.1.131:8080/"
             },
             "capture": "false",
-            "description": "Заказ №1",
+            "description": "Заказ №{}".format(order_id),
             "metadata": {
                 "order_id": "37"
             }

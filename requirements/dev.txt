@@ -6,7 +6,7 @@ cryptography==2.9.2
 defusedxml==0.6.0
 Deprecated==1.2.10
 distro==1.5.0
-Django==3.1.1
+django-divier==0.6
 django-admin-tools==0.9.0
 django-allauth==0.42.0
 django-braces==1.14.0

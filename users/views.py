@@ -198,7 +198,7 @@ class StarByCategory(APIView):
     """
     Вьюшка для получения спсика звезд по айди категории
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @logger.catch()
     def get(self, request, format='json'):
@@ -418,7 +418,7 @@ class OrderPayCapture(APIView):
 
 
 class ListCategory(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @logger.catch()
     def get(self, request, format='json'):
