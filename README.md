@@ -2,31 +2,31 @@
 
 *End-points*
 
-* http://192.168.1.131:8080/api/login/ - логин
+* http://localhost/api/login/ - логин
 
 response: 
 
     201
 
-* http://192.168.1.131:8080/api/registration/ - регистрация пользователя
+* http://localhost/api/registration/ - регистрация пользователя
 
 response: 
 
     201
 
-* http://192.168.1.131:8080/api/categories/ - GET категории
+* http://localhost/api/categories/ - GET категории
 
 response: 
 
     201
 
-* http://192.168.1.131:8080/api/star/create/- регистрация звезды
+* http://localhost/api/star/create/- регистрация звезды
 
 response: 
 
     201
 
-* http://192.168.1.131:8080/password_reset/ - Смена пароля
+* http://localhost/password_reset/ - Смена пароля
 
 request:
 
@@ -59,13 +59,13 @@ response:
         "status": "OK"
     }
         
-* http://192.168.1.131:8080/api/star/getlist/ - список всех звезд
+* http://localhost/api/star/getlist/ - список всех звезд
 
 response: 
 
     201
 
-* http://192.168.1.131:8080/api/star/id/?id=1 - [GET] звезду по id
+* http://localhost/api/star/id/?id=1 - [GET] звезду по id
 
 request:
 
@@ -85,7 +85,7 @@ response:
         "is_star": true
     }
 
-* http://192.168.1.131:8080/api/star/category/?id=1 - [GET] звезд по id категории
+* http://localhost/api/star/category/?id=1 - [GET] звезд по id категории
 
 response:
 
@@ -101,7 +101,7 @@ response:
         }
     ]
     
-*http://192.168.1.131:8080/api/star/filter/ - [POST] получить список звезд по тегам
+*http://localhost/api/star/filter/ - [POST] получить список звезд по тегам
 
 request:
 
@@ -137,7 +137,7 @@ response:
         }
     ]
 
-* http://192.168.1.131:8080/api/ratestar/ - [PUT] проголосовать за звезду
+* http://localhost/api/ratestar/ - [PUT] проголосовать за звезду
 
 request:
 
@@ -152,7 +152,7 @@ response:
     201
 
 
-* http://192.168.1.131:8080/api/star/like/ - [POST] поставить лайк
+* http://localhost/api/star/like/ - [POST] поставить лайк
 
 requset:
     
@@ -170,7 +170,7 @@ response:
     если отпраить плохие данныеЖ
         error.data 400
 
-* http://192.168.1.131:8080/api/order/ - [POST] сделать заказ
+* http://localhost/api/order/ - [POST] сделать заказ
 
 request:
 
@@ -188,7 +188,45 @@ response:
     201
 
 
-* http://192.168.1.131:8080/api/orderaccept/ - [POST] звезда принимает/отклоняет заказ
+* http://localhost/api/order/list/?is_star=false&user_id=1 - список заказов
+
+response:
+
+    [
+        {
+            "id": 57,
+            "customer_id": 1,
+            "star_id": 39,
+            "payment_id": "",
+            "order_price": "45000.00",
+            "by_date": "2012-12-12",
+            "by_time": "09:27:00",
+            "for_whom": "ddddd",
+            "comment": "aaaaa",
+            "status_order": 0,
+            "star": "poor10",
+            "star_avatar": "/media/avatars/1.jpg",
+            "cat_name": "Хип-Хоп"
+        },
+        {
+            "id": 59,
+            "customer_id": 1,
+            "star_id": 39,
+            "payment_id": "",
+            "order_price": "45000.00",
+            "by_date": "2020-12-12",
+            "by_time": "09:27:00",
+            "for_whom": "gggg",
+            "comment": "dddd",
+            "status_order": 0,
+            "star": "poor10",
+            "star_avatar": "/media/avatars/1.jpg",
+            "cat_name": "Хип-Хоп"
+        }
+    ]
+
+
+* http://localhost/api/orderaccept/ - [POST] звезда принимает/отклоняет заказ
 
 request:
 
@@ -201,7 +239,7 @@ response:
 
     201
     
-* http://192.168.1.131:8080/api/order/cust/detail/ - [GET] заказчик получает информацию по заказу
+* http://localhost/api/order/cust/detail/ - [GET] заказчик получает информацию по заказу
 
 request:
 
@@ -225,7 +263,7 @@ response(если звезда прислала поздравление):
         "video": "congratulation/5/ef01bd85-3509-4cd2-907b-545dd7c799b5.mp4"
     }
 
-* http://192.168.1.131:8080/api/personal/ - лк для звезды и заказчика
+* http://localhost/api/personal/ - лк для звезды и заказчика
 
 request:
 
@@ -283,35 +321,35 @@ response:
 
 # Платежка
 ## Создать платеж
-* http://192.168.1.131:8080/api/order/pay/?order_id=56 - создание платежа (холд)
+* http://localhost/api/order/pay/?order_id=56 - создание платежа (холд)
 
 
     {
-        "link": "http://192.168.1.131:8080/payments/?order_id=56"
+        "link": "http://localhost/payments/?order_id=56"
     }
 
 ## Списание денег
-* http://192.168.1.131:8080/api/order/pay/capture/?order_id=56 -  списание денег
+* http://localhost/api/order/pay/capture/?order_id=56 -  списание денег
    
    
    {
-        "link": "http://192.168.1.131:8080/payments/notifications/?order_id56"
+        "link": "http://localhost/payments/notifications/?order_id56"
    }
 
 # Загрузки файлов
-* http://192.168.1.131:8080/api/upload/avatar/ - загрузить фотку (до 15 мб)
+* http://localhost/api/upload/avatar/ - загрузить фотку (до 15 мб)
 
 request(multipart/formdata):
 response:
     ![](readme/upload%20avatar.png)
 
-* http://192.168.1.131:8080/api/upload/video/hi/ - загрузить видео приветсвие звезды
+* http://localhost/api/upload/video/hi/ - загрузить видео приветсвие звезды
 
 request(multipart/formdata):
 response:
     ![](readme/videohi.png)
     
-* http://192.168.1.131:8080/api/upload/congritulatoin/ - загрузить поздравление
+* http://localhost/api/upload/congritulatoin/ - загрузить поздравление
 
 request(multipart/formdata):
 response:
@@ -320,7 +358,7 @@ response:
 
 # Messages
 ## Отправка сообщения
-* http://192.168.1.131:8080/api/message/ -[POST] -запрос
+* http://localhost/api/message/ -[POST] -запрос
 
 request:
     
@@ -344,7 +382,7 @@ response:
     404 OK
 
 ## Получить список сообщений
-* http://192.168.1.131:8080/api/message/?user_id=<id>&from_user=<id>
+* http://localhost/api/message/?user_id=<id>&from_user=<id>
 
 response:
 
@@ -382,7 +420,7 @@ response:
 # Yandex OAuth
 ## Register
 ### 1st STEP
-* http://192.168.1.131:8080/api/pre-yandex-oauth/
+* http://localhost/api/pre-yandex-oauth/
 
 response:
     
@@ -392,7 +430,7 @@ response:
     
     приходит ссылка по которой пользователь должен перейти и пройти авторизацию в яндексе
     идет редирект на 
-        * http://192.168.1.131:8080/api/mid-yandex/?code=4454043 
+        * http://localhost/api/mid-yandex/?code=4454043 
         
         который отдает:
         
@@ -411,7 +449,7 @@ response:
                 refresh_token
         
 ###2nd STEP
-* http://192.168.1.131:8080/api/yandex-oauth/ - [POST] - запрос
+* http://localhost/api/yandex-oauth/ - [POST] - запрос
 
 request:
 
@@ -434,7 +472,7 @@ response:
     }
     
 ## LOGIN
-* http://192.168.1.131:8080/api/yandex-login/ - [POST] запрос
+* http://localhost/api/yandex-login/ - [POST] запрос
 
 request:
 
