@@ -268,56 +268,35 @@ response(если звезда прислала поздравление):
 request:
 
     {
-        "user_id": "1",
-        "is_star": 0
+        "user_id": 1,
+        "is_star": false
     }
 
 response:
 
-    [
-        {
-            "username": "myname",
-            "phone": 9941622229,
-            "email": "poor@test.com",
-            "date_of_birth": "1999-08-05",
-            "is_star": false
-        },
-        {
-            "orders": [
-                {
-                    "customer_id": 1,
-                    "star_id": 3,
-                    "payment_id": "",
-                    "order_price": "4000.00",
-                    "ordering_time": "2020-09-23T06:34:49.397971Z",
-                    "for_whom": "Для Мамы",
-                    "comment": "Хочу поздравить маму с днем рождения",
-                    "status_order": 0
-                },
-                {
-                    "customer_id": 1,
-                    "star_id": 3,
-                    "payment_id": "28153142-0a0c-47cd-b253-01e337034a69",
-                    "order_price": "4000.00",
-                    "ordering_time": "2020-09-22T13:45:05.643858Z",
-                    "for_whom": "Для Мамы",
-                    "comment": "Хочу поздравить маму с днем рождения",
-                    "status_order": 1
-                },
-                {
-                    "customer_id": 1,
-                    "star_id": 2,
-                    "payment_id": "",
-                    "order_price": "15000.00",
-                    "ordering_time": "2020-09-22T13:22:17.143066Z",
-                    "for_whom": "Для Мамы",
-                    "comment": "Хочу поздравить маму с днем рождения",
-                    "status_order": -1
-                }
-            ]
-        }
-    ]
-
+    {
+        "id": 1,
+        "username": "divier",
+        "phone": 9161583866,
+        "email": "belinsky.dev@gmail.com",
+        "avatar": null,
+        "first_name": "",
+        "last_name": "",
+        "date_of_birth": "1999-08-05"
+    }
+    
+    or
+    
+    {
+        "id": 2,
+        "username": "Баста",
+        "phone": 7779995656,
+        "email": "basota@test.ru",
+        "avatar": 1,
+        "first_name": "Василий",
+        "last_name": "Вакуленко",
+        "likes": 0
+    }
 
 # Платежка
 ## Создать платеж
