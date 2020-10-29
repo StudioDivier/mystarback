@@ -472,3 +472,90 @@ response:
         "avatar": "27503/4rPlOgcuh9aRm0UZIRLZMUzNb7k-1",
         "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzcsImV4cCI6MTYwODQ1NTkyMH0.5voe3hImK8EjnSmUTDs4cLUrM1vnKY2UowMTu2BJB9I"
     }
+    
+    
+# VK OAuth
+## Register
+### 1st STEP
+* http://localhost/api/pre-vk-oauth/
+
+response:
+    
+    {
+        "link": "https://oauth.vk.com/authorize?client_id={client_id}&' \
+           f'display=page&' \
+           f'redirect_uri={redirect}&' \
+           f'scope=email,offline&' \
+           f'response_type=code&' \
+           f'v=5.124'"
+    }
+    
+    приходит ссылка по которой пользователь должен перейти и пройти авторизацию в яндексе
+    идет редирект на 
+        * http://localhost:8080/api/mid-vk/?code=4454043 
+        
+        который отдает:
+        
+        response:
+        
+            {
+                "access_token": "48863fb494f7120a41198965bf1374268ac6a5f7f7ab54626e24795efaf41ad8f53dc669492917cfcdc11",
+                "expires_in": 0,
+                "user_id": 331186264,
+                "email": "natsume.ace@gmail.com"
+            }
+            
+            сохранить в localeStorage: 
+                access_token
+                expires_in
+                user_id
+                email
+                
+                        
+###2nd STEP
+* http://localhost/api/vk-oauth/ - [POST] - запрос
+
+request:
+
+    {
+        "access_token": "48863fb494f7120a41198965bf1374268ac6a5f7f7ab54626e24795efaf41ad8f53dc669492917cfcdc11",
+        "phone": 7899879856,
+        "email": "sdgsd@gf.com"
+    }
+    
+response:
+
+    {
+        "first_name": "Никита",
+        "id": 331186264,
+        "last_name": "Калинкин",
+        "can_access_closed": true,
+        "is_closed": false,
+        "screen_name": "alien.essence",
+        "bdate": "5.8.1999",
+        "photo_max_orig": "https://sun1-87.userapi.com/impf/c855120/v855120608/5a088/vDZPSABd9ro.jpg?size=400x0&quality=90&crop=14,150,654,654&sign=bb3ae1da1a51ba0a3118ed05cfe729cf&c_uniq_tag=IUyDgzkj2JnD_KUb9ETs13I2SUp6nbn025Bn1URYmp0&ava=1",
+        "has_mobile": 1
+    }
+    
+## LOGIN
+* http://localhost/api/yandex-login/ - [POST] запрос
+
+request:
+
+    {
+        "access_token": "AgAAAABGbolrAAadV473b-IDm0Vll2dOLX_qlJ4",
+        "expires_in": 31445978,
+        "refresh_token": "1:-LkGm4lbjCn8YTC-:H14t5f5FmLrvZCZ2jUcrM1_kXNmt-hRrGqcrhB2kWJN39t_Wkdi-:_VuPZZzgDWo9aoki7ZWTnA"
+    }
+    
+response:
+
+    {
+        "id": 37,
+        "username": "mystar999",
+        "phone": 0,
+        "is_star": false,
+        "email": "mystar999@yandex.ru",
+        "avatar": "27503/4rPlOgcuh9aRm0UZIRLZMUzNb7k-1",
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzcsImV4cCI6MTYwODQ1NTkyMH0.5voe3hImK8EjnSmUTDs4cLUrM1vnKY2UowMTu2BJB9I"
+    }

@@ -1,0 +1,5 @@
+https://accounts.google.com/o/oauth2/auth?
+client_id=506165388319-il6eo99u4u3akgr7ul32uaj9jsgvjq05.apps.googleusercontent.com
+&redirect_uri=https://exprome.ru/
+&access_type=offline&response_type=code
+&scope=https://www.googleapis.com/auth/userinfo.email

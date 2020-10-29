@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Stars, Customers, Categories, Orders
+from .models import Stars, Customers, Categories, Orders, Avatars, Videos, CatPhoto
+
 
 
 @admin.register(Stars)
@@ -11,10 +12,10 @@ class StarsAdmin(admin.ModelAdmin):
     list_filter = ('rating', 'cat_name_id')
     fieldsets = (
         ('Инфорамция о Звезде',{
-            'fields': ('username', ('first_name', 'last_name'))
+            'fields': (('email', 'username',), ('first_name', 'last_name'), 'phone', 'avatar')
         }),
         ('Коммерческая информация', {
-            'fields': ('cat_name_id', 'price', 'rating')
+            'fields': (('cat_name_id', 'price', 'rating',),'profession' ,'video_hi', ('description',),)
         }),
         ('Теги звезды', {
             'fields': ('tags', )
@@ -54,3 +55,7 @@ class OrdersAdmin(admin.ModelAdmin):
             'fields': ('order_price', 'ordering_time')
         }),
     )
+
+admin.site.register(Avatars)
+admin.site.register(Videos)
+admin.site.register(CatPhoto)

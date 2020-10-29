@@ -26,7 +26,6 @@ urlpatterns = [
 
     # users end point
     path('api/', include('users.urls')),
-    path('auth/', include('rest_framework_social_oauth2.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     re_path(r'^password-reset/', include('django_rest_passwordreset.urls')),
 

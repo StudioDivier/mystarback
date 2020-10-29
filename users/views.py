@@ -20,7 +20,7 @@ from rest_framework.authtoken.models import Token
 
 from django.forms.models import model_to_dict
 
-from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers
+from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers, CatPhoto
 from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats
 from .serializers import LoginSerializer, UserSerializer, RegistrationSerializer, CategorySerializer
 from .serializers import CustomerSerializer, StarSerializer, RatingSerializer, OrderSerializer, AvatarSerializer
@@ -151,7 +151,11 @@ class StarById(APIView):
             serializer_class = StarSerializer(stars_set)
             json = serializer_class.data
 
-            avatar = Avatars.objects.get(user_id=id)
+            user = Users.objects.get(username=json['username'])
+            avatar = Avatars.objects.get(username=user.username)
+            video = Videos.objects.get(username=user.username)
+
+            json['video'] = str(video.video_hi)
             json['avatar'] = str(avatar.image)
             return Response(json, status=status.HTTP_200_OK)
         except Stars.DoesNotExist:
@@ -168,7 +172,7 @@ class StarsList(APIView):
     """
     Получаем список всех звезд
     """
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     @logger.catch()
     def get(self, request, format='json'):
@@ -220,8 +224,13 @@ class StarByCategory(APIView):
                 set = Likes.objects.filter(star_id=json[i]['id']).count()
                 json[i]['likes'] = set
                 for j in range(len(avatar_data)):
-                    if json[i]['id'] == avatar_data[j]['user_id']:
+                    if json[i]['username'] == avatar_data[j]['username']:
                         json[i]['avatar'] = avatar_data[j]['image']
+                        user = Users.objects.get(username=json[i]['username'])
+
+                        video = Videos.objects.get(username=user.username)
+
+                        json[i]['video'] = str(video.video_hi)
 
             try:
                 if json == []:
@@ -237,7 +246,7 @@ class StarByCategory(APIView):
 
 class RateStar(APIView):
     """
-    Вьюшка для обновления рейтинга звезды 
+    Вьюшка для обновления рейтинга звезды
     """
     permission_classes = [IsAuthenticated]
 
@@ -404,7 +413,7 @@ class OrderPay(APIView):
 
     def get(self, request, format='json'):
         order_id = request.GET.get("order_id", "")
-        link = 'http://192.168.1.131:8080/payments/?order_id={}'.format(order_id)
+        link = 'http://exprome.ru:8080/payments/?order_id={}'.format(order_id)
         return Response({'link': link}, status=status.HTTP_200_OK)
 
 
@@ -413,7 +422,7 @@ class OrderPayCapture(APIView):
 
     def get(self, request, format='json'):
         order_id = request.GET.get("order_id", "")
-        link = 'http://192.168.1.131:8080/payments/notifications/?order_id{}'.format(order_id)
+        link = 'http://exprome.ru:8080/payments/notifications/?order_id{}'.format(order_id)
         return Response({'link': link}, status=status.HTTP_200_OK)
 
 
@@ -425,6 +434,11 @@ class ListCategory(APIView):
         cat_set = Categories.objects.all()
         cat_serial = CategorySerializer(cat_set, many=True)
         json = cat_serial.data
+        for i in range(len(json)):
+            cat = CatPhoto.objects.get(category=json[i]['cat_name'])
+            json[i]['category_photo'] = cat.image
+
+
         return Response(json, status=status.HTTP_200_OK)
 
 
@@ -454,20 +468,20 @@ class OrdersListView(APIView):
             try:
                 order_set = Orders.objects.filter(star_id_id=user_id)
                 serial_orders = OrderSerializer(order_set, many=True)
-                customer = order_set[0].customer_id
 
-                user_set = Users.objects.get(id=customer)
-                username = user_set.username
+                json = serial_orders.data
 
-                response = {
-                    'data': {
-                        'star': star,
-                        'customer': username,
-                    },
-                    'orders': serial_orders.data
-                }
+                for i in range(len(json)):
+                    customer = order_set[i].customer_id_id
+                    user_set = Users.objects.get(id=customer)
+                    username = user_set.username
+                    avatar = user_set.avatar
+                    ava = Avatars.objects.get(id=avatar)
+                    json[i]['customer_username'] = username
+                    json[i]['customer_avatar'] = str(ava.image)
 
-                return Response(response, status=status.HTTP_200_OK)
+
+                return Response(json, status=status.HTTP_200_OK)
             except IndexError:
                 response = {
                     'Заказов нет'
@@ -482,22 +496,19 @@ class OrdersListView(APIView):
                 order_set = Orders.objects.filter(customer_id=user_id)
                 serial_orders = OrderSerializer(order_set, many=True)
 
-                set_star = Stars.objects.get(users_ptr_id=order_set[0].star_id_id)
-                star = set_star.username
-                avatar = set_star.avatar
-                cat_id = set_star.cat_name_id.cat_name
+                json = serial_orders.data
 
-                response = {
-                    'data': {
-                        'cat_name': cat_id,
-                        'star': star,
-                        'avatar': avatar,
-                        'customer': username,
-                    },
-                    'orders': serial_orders.data
-                }
+                for i in range(len(json)):
+                    set_star = Stars.objects.get(users_ptr_id=order_set[i].star_id_id)
+                    star = set_star.username
+                    avatar = set_star.avatar
+                    ava = Avatars.objects.get(id=avatar)
+                    cat_id = set_star.cat_name_id.cat_name
+                    json[i]['star'] = star
+                    json[i]['star_avatar'] = str(ava.image)
+                    json[i]['cat_name'] = cat_id
 
-                return Response(response, status=status.HTTP_200_OK)
+                return Response(json, status=status.HTTP_200_OK)
             except IndexError:
                 response = {
                     'Заказов нет'
@@ -532,12 +543,14 @@ class PersonalAccount(APIView):
         user_id = request.GET.get("user_id", "")
 
         if is_star == 'true':
-            star_set = Stars.objects.filter(users_ptr_id=user_id)
-            star_cust = ProfileStarSerializer(star_set, many=True)
+            star_set = Stars.objects.get(users_ptr_id=user_id)
+            star_cust = ProfileStarSerializer(star_set)
             json = star_cust.data
-
-            set = Likes.objects.filter(star_id=user_id).count()
-            json[0]['likes'] = set
+            try:
+                set = Likes.objects.filter(star_id=user_id).count()
+                json['likes'] = set
+            except IndexError:
+                json['likes'] = 0
 
             return Response(json, status=status.HTTP_200_OK)
 
@@ -800,9 +813,9 @@ class VKRegisterView(APIView):
         l_name = response['last_name']
         birth_day = response['bdate']
         pword = response['id']
-        photo = response['photo_nax_orig']
-        phone = '000000000000'
-        email = 'vl@vk.vk'
+        photo = response['photo_max_orig']
+        phone = request.data['phone']
+        email = request.data['email']
         data = {
             'username': username,
             'phone': phone,

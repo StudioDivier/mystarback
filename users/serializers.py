@@ -9,13 +9,13 @@ from .models import Customers, Stars, Users, Ratings, Orders, Categories, Avatar
 class AvatarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Avatars
-        fields = ('user_id', 'image')
+        fields = ('username', 'image')
 
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Videos
-        fields = ('star_id', 'video_hi')
+        fields = ('username', 'video_hi')
 
 
 class CongratulationSerializer(serializers.ModelSerializer):
@@ -143,7 +143,7 @@ class StarSerializer(serializers.ModelSerializer):
     class Meta:
         model = Stars
         fields = ('id', 'username', 'first_name', 'last_name', 'password', 'phone', 'description', 'email', 'price',
-                  'cat_name_id', 'profession', 'rating', 'is_star', 'video_hi', 'days')
+                  'cat_name_id', 'profession', 'rating', 'is_star', 'days')
 
     def create(self, validated_data):
         star = Stars(

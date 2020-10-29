@@ -32,7 +32,7 @@ def nameCat(instance, filename):
 
 def nameVideoFile(instance, filename):
     filename = str(uuid.uuid4()) + '.mp4'
-    return '/'.join(['videos', str(instance.star_id), filename])
+    return '/'.join(['videos', str(instance.username), filename])
 
 
 def congratulationFile(instance, filename):
@@ -41,26 +41,35 @@ def congratulationFile(instance, filename):
 
 
 class CatPhoto(models.Model):
-    cat_id = models.IntegerField(name='cat_photo', unique=True)
-    image = models.ImageField(upload_to=nameCat)
+    category = models.CharField(name='category', unique=True, max_length=256)
+    image = models.FileField(upload_to=nameCat)
+
+    def __str__(self):
+        return str(self.image)
 
 
 class Avatars(models.Model):
-    user_id = models.IntegerField(name='user_id', unique=True)
+    username = models.CharField(name='username', unique=True, max_length=256)
     image = models.ImageField(upload_to=nameFile)
 
     class Meta:
         verbose_name = 'avatar'
         verbose_name_plural = 'avatars'
 
+    def __str__(self):
+        return str(self.username)
+
 
 class Videos(models.Model):
-    star_id = models.IntegerField(name='star_id', unique=True)
+    username = models.CharField(name='username', unique=True, max_length=256)
     video_hi = models.FileField(upload_to=nameVideoFile)
 
     class Meta:
         verbose_name = 'video'
         verbose_name_plural = 'videos'
+
+    def __str__(self):
+        return str(self.username)
 
 
 class Congratulations(models.Model):
@@ -71,6 +80,9 @@ class Congratulations(models.Model):
     class Meta:
         verbose_name = 'congritulation'
         verbose_name_plural = 'congritulations'
+
+    def __str__(self):
+        return str(self.video_con)
 
 
 class UserManager(BaseUserManager):
@@ -114,9 +126,10 @@ class Users(AbstractUser, PermissionsMixin):
     phone = models.BigIntegerField(name='phone', unique=True)
     email = models.EmailField(name='email', unique=True)
     password = models.CharField(name='password', max_length=128)
-    avatar = models.FilePathField(name='avatar', path=settings.AVATAR_ROOT, blank=True)
+    avatar = models.ForeignKey(Avatars, on_delete=models.CASCADE, blank=True, null=True)
+    #avatar = models.FilePathField(name='avatar', path=settings.AVATAR_ROOT, blank=True)
     # avatar = models.ImageField(
-    #     upload_to=productFile,
+    #     upload_to=nameFile,
     #     max_length=254, blank=True, null=True
     # )
     is_star = models.BooleanField(name='is_star', default=0)
@@ -184,7 +197,7 @@ class Categories(models.Model):
      cat_name - наименование категории
     """
     cat_name = models.CharField(name='cat_name', unique=True, db_index=True, max_length=128)
-    cat_photo = models.FilePathField(name='cat_photo', path=settings.CAT_PHOTO, blank=True)
+    cat_photo = models.ForeignKey(CatPhoto, on_delete=models.CASCADE, blank=True, null=True)
 
     def __str__(self):
         return "{}".format(self.cat_name)
@@ -225,10 +238,11 @@ class Stars(Users):
     cat_name_id = models.ForeignKey(Categories, to_field='id', on_delete=models.CASCADE)
     rating = models.IntegerField(name='rating')
     days = models.CharField(name='days', default='0', max_length=8)
-    video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/1.jpg')
+    # video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/videos/012155be-4a77-4fdd-adbc-4121c5dceda0.mp4')
+    video_hi = models.ForeignKey(Videos, on_delete=models.CASCADE, blank=True, null=True)
     profession = models.CharField(name='profession', max_length=32)
     tags = TaggableManager()
-    description = models.CharField(name='description', max_length=2048)
+    description = models.TextField(name='description', max_length=2048)
 
     class Meta:
         verbose_name = 'Star'
@@ -281,6 +295,9 @@ class Orders(models.Model):
         verbose_name = 'Order'
         verbose_name_plural = 'Orders'
 
+    def __str__(self):
+        return "Заказ №{}: {} -> {}".format(self.id, self.customer_id, self.star_id)
+
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
@@ -307,9 +324,15 @@ class YandexUsers(models.Model):
     refresh_token = models.CharField(name='refresh_token', max_length=256)
     expires_in = models.BigIntegerField(name='expires_in')
 
+    def __str__(self):
+        return str(self.id_yandex)
+
 
 class VkUsers(models.Model):
     id_vk = models.BigIntegerField(name='id_vk', unique=True)
     access_token = models.CharField(name='access_token', max_length=256)
     refresh_token = models.CharField(name='refresh_token', max_length=256)
     expires_in = models.BigIntegerField(name='expires_in')
+
+    def __str__(self):
+        return str(self.id_vk)

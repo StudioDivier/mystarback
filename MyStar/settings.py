@@ -28,7 +28,7 @@ SECRET_KEY = config.sk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # '192.168.1.131'
-ALLOWED_HOSTS = ['192.168.1.131', '127.0.0.1']
+ALLOWED_HOSTS = ['exprome.ru', 'www.exprome.ru']
 SITE_ID = 1
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640
 
@@ -59,14 +59,14 @@ INSTALLED_APPS = [
 
     'taggit',
 
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.vk',
-
-    'oauth2_provider',
-    'social_django',
-    'rest_framework_social_oauth2',
+    # 'allauth',
+    # 'allauth.account',
+    # 'allauth.socialaccount',
+    # 'allauth.socialaccount.providers.vk',
+    #
+    # 'oauth2_provider',
+    # 'social_django',
+    # 'rest_framework_social_oauth2',
 
     # Apps
     'users',
@@ -82,20 +82,15 @@ REST_FRAMEWORK = {
         'users.backends.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
-        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-        'rest_framework_social_oauth2.authentication.SocialAuthentication',
+        # 'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+        # 'rest_framework_social_oauth2.authentication.SocialAuthentication',
 
     ),
     # 'EXCEPTION_HANDLER': 'django_rest_logger.handlers.rest_exception_handler',
 }
 
 AUTHENTICATION_BACKENDS = (
-    'social_core.backends.facebook.FacebookAppOAuth2',
-    'social_core.backends.facebook.FacebookOAuth2',
-    'rest_framework_social_oauth2.backends.DjangoOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-
-
 )
 
 SOCIAL_AUTH_FACEBOOK_KEY = config.OAUTHDATA.SOCIAL_AUTH_FB_OAUTH2_KEY
@@ -137,8 +132,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.media',
-                'social_django.context_processors.backends',
-                'social_django.context_processors.login_redirect',
+                # 'social_django.context_processors.backends',
+                # 'social_django.context_processors.login_redirect',
                 'django.template.context_processors.request',
 
             ],
@@ -214,17 +209,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
-if DEBUG:
-    STATIC_URL = os.path.join(BASE_DIR, '/STATIC/DEV/static/')
-    STATIC_ROOT = os.path.join(BASE_DIR, 'STATICFILES/DEV')
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
-    AVATAR_ROOT = os.path.join(BASE_DIR, 'media/avatars/')
-    VIDEO_ROOT = os.path.join(BASE_DIR, 'media/videos/')
-    CAT_PHOTO = os.path.join(BASE_DIR, 'media/categories/')
-    MEDIA_URL = '/media/'
-else:
-    STATIC_URL = '/static/'
-    MEIDA_ROOT = os.path.join(BASE_DIR, 'media')
+
+STATIC_URL = os.path.join(BASE_DIR, '/static/prod/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/prod')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+AVATAR_ROOT = os.path.join(BASE_DIR, 'media/avatars/')
+VIDEO_ROOT = os.path.join(BASE_DIR, 'media/videos/')
+CAT_PHOTO = os.path.join(BASE_DIR, 'media/categories/')
+MEDIA_URL = '/media/'
+
 
 
 # data for mailing service
