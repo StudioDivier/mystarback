@@ -28,7 +28,7 @@ SECRET_KEY = config.sk
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 # '192.168.1.131'
-ALLOWED_HOSTS = ['exprome.ru', 'www.exprome.ru']
+ALLOWED_HOSTS = ['192.168.1.131', '127.0.0.1']
 SITE_ID = 1
 DATA_UPLOAD_MAX_MEMORY_SIZE = 15728640
 

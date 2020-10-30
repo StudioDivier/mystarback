@@ -41,7 +41,7 @@ def congratulationFile(instance, filename):
 
 
 class CatPhoto(models.Model):
-    category = models.CharField(name='category', unique=True, max_length=256)
+    category = models.CharField(name='category', unique=True, max_length=128)
     image = models.FileField(upload_to=nameCat)
 
     def __str__(self):
@@ -49,7 +49,7 @@ class CatPhoto(models.Model):
 
 
 class Avatars(models.Model):
-    username = models.CharField(name='username', unique=True, max_length=256)
+    username = models.CharField(name='username', unique=True, max_length=128)
     image = models.ImageField(upload_to=nameFile)
 
     class Meta:
@@ -61,7 +61,7 @@ class Avatars(models.Model):
 
 
 class Videos(models.Model):
-    username = models.CharField(name='username', unique=True, max_length=256)
+    username = models.CharField(name='username', unique=True, max_length=128)
     video_hi = models.FileField(upload_to=nameVideoFile)
 
     class Meta:
