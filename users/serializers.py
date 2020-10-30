@@ -238,6 +238,44 @@ class RegistrationSerializer(serializers.ModelSerializer):
         return Customers.objects.create_user(**validated_data)
 
 
+class RegistrationStarSerializer(serializers.ModelSerializer):
+    """
+    Creates a new user.
+    Email, username, and password are required.
+    Returns a JSON web token.
+    """
+
+    username = serializers.CharField(
+        max_length=32,
+        validators=[UniqueValidator(queryset=Users.objects.all())]
+                                     )
+    phone = serializers.IntegerField(
+        validators=[UniqueValidator(queryset=Users.objects.all())]
+    )
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=Users.objects.all())]
+    )
+    # The password must be validated and should not be read by the client
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True,
+    )
+
+    # The client should not be able to send a token along with a registration
+    # request. Making `token` read-only handles that for us.
+    token = serializers.CharField(max_length=255, read_only=True)
+
+    class Meta:
+        model = Stars
+        fields = ('username', 'phone', 'email', 'password', 'price','rating',
+                  'cat_name_id', 'description', 'profession', 'is_star', 'token', 'register')
+
+    def create(self, validated_data):
+        return Stars.objects.create_user(**validated_data)
+
+
 class MessageChatsSerializer(serializers.ModelSerializer):
     class Meta:
         model = MessageChats

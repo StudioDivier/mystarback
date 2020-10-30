@@ -5,7 +5,7 @@ from MyStar import config
 
 client_id = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_KEY
 client_secret = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_SECRET
-redirect = 'https://exprome.ru:8080/api/mid-vk/'
+redirect = config.url + 'api/mid-vk/'
 
 
 def send_request():

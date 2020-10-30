@@ -13,3 +13,19 @@ class CustomerRegistrationForm(UserCreationForm):
     class Meta:
         model = Customers
         fields = ('username', 'email', 'phone', 'date_birth')
+
+
+class StarRegistrationForm(forms.Form):
+
+    username = forms.CharField()
+    email = forms.EmailField()
+    phone = forms.IntegerField()
+    password = forms.CharField()
+    price = forms.DecimalField()
+    rating = forms.IntegerField()
+
+
+
+    class Meta:
+        model = Customers
+        fields = ('username', 'email', 'phone', 'date_birth')

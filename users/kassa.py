@@ -9,6 +9,7 @@ from yandex_checkout import Configuration, Payment
 from rest_framework.views import APIView
 from rest_framework.permissions import AllowAny
 
+from MyStar import config
 from MyStar.config import ID_KASSA, SK_KASSA
 from users.serializers import OrderSerializer
 from users.models import Orders
@@ -47,7 +48,7 @@ class YandexPayment(APIView):
             },
             "confirmation": {
                 "type": "redirect",
-                "return_url": "http://192.168.1.131:8080/"
+                "return_url": "{}".format(config.url)
             },
             "capture": "false",
             "description": "Заказ №{}".format(order_id),
