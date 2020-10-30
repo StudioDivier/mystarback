@@ -3,3 +3,7 @@ client_id=506165388319-il6eo99u4u3akgr7ul32uaj9jsgvjq05.apps.googleusercontent.c
 &redirect_uri=https://exprome.ru/
 &access_type=offline&response_type=code
 &scope=https://www.googleapis.com/auth/userinfo.email
+
+
+
+https://docs.djangoproject.com/en/1.8/topics/auth/customizing/#a-full-example

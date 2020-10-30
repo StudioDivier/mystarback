@@ -355,7 +355,7 @@ class OrderView(APIView):
                 star_email = star[0]['email']
                 star_username = star[0]['username']
                 star_price = star[0]['price']
-                SUBJECT = 'MySTAR: Уведомление!'
+                SUBJECT = 'EXPROME: Уведомление!'
                 TEXT_MESASGE = 'Уважаемый {}, вам пришел заказ поздравления на сумму {}'.format(
                     star_username, star_price
                 )
@@ -398,22 +398,22 @@ class StarOrderAccepted(APIView):
             order_set.payment_id = ''
             order_set.status_order = 1
             order_set.save()
-            SUBJECT = 'MySTAR: Уведомление!'
+            SUBJECT = 'EXPROME: Уведомление!'
             TEXT_MESASGE = 'Уважаемый {}, ваш заказ был принят. ' \
-                           'Приходите в MySTAR, чтобы оплатить его.'.format(
+                           'Приходите в EXPROME, чтобы оплатить его.'.format(
                 customer_username
             )
-            data = {'заказ принят'}
+            data = {'Заказ принят'}
         elif request.data['accept'] == 'reject':
             order_set.payment_id = ''
             order_set.status_order = -1
             order_set.save()
-            SUBJECT = 'MySTAR: Уведомление!'
+            SUBJECT = 'EXPROME: Уведомление!'
             TEXT_MESASGE = 'Уважаемый {}, ваш заказ был отклонён.' \
-                           'Приходите заказывать еще поздравления в MySTAR'.format(
+                           'Приходите заказывать еще поздравления в EXPROME'.format(
                 customer_username
             )
-            data = {'заказ отклонен'}
+            data = {'Заказ отклонен'}
         else:
             return Response({'Не установлен статус заказа.'}, status=status.HTTP_400_BAD_REQUEST)
         send_mail(SUBJECT, TEXT_MESASGE, settings.EMAIL_HOST_USER, [customer_email])
@@ -645,7 +645,7 @@ class CongratulationView(APIView):
                 cust_email = order.customer_id.email
                 star = Stars.objects.get(id=request.data['star_id'])
                 star_username = star.username
-                SUBJECT = 'MySTAR: Уведомление!'
+                SUBJECT = 'EXPROME: Уведомление!'
                 TEXT_MESASGE = 'Уважаемый {}, Вам пришло видео поздравление '.format(
                     cust_username, star_username
                 )
