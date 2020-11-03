@@ -441,13 +441,12 @@ request:
 response:
 
     {
-        "id": 37,
-        "username": "mystar999",
-        "phone": 0,
-        "is_star": false,
-        "email": "mystar999@yandex.ru",
-        "avatar": "27503/4rPlOgcuh9aRm0UZIRLZMUzNb7k-1",
-        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MzcsImV4cCI6MTYwODQ1NTkyMH0.5voe3hImK8EjnSmUTDs4cLUrM1vnKY2UowMTu2BJB9I"
+        'id': id,
+        'token': token,
+        'email': email,
+        'date_of_birth': date_of_birth,
+        'username': username,
+        'phone': phone,    
     }
     
 ## LOGIN
@@ -526,15 +525,12 @@ request:
 response:
 
     {
-        "first_name": "Никита",
-        "id": 331186264,
-        "last_name": "Калинкин",
-        "can_access_closed": true,
-        "is_closed": false,
-        "screen_name": "alien.essence",
-        "bdate": "5.8.1999",
-        "photo_max_orig": "https://sun1-87.userapi.com/impf/c855120/v855120608/5a088/vDZPSABd9ro.jpg?size=400x0&quality=90&crop=14,150,654,654&sign=bb3ae1da1a51ba0a3118ed05cfe729cf&c_uniq_tag=IUyDgzkj2JnD_KUb9ETs13I2SUp6nbn025Bn1URYmp0&ava=1",
-        "has_mobile": 1
+        'id': id,
+        'token': token,
+        'username': username,
+        'phone': phone,
+        'email': email,
+        'date_of_birth': birth_day,
     }
     
 ## LOGIN

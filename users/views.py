@@ -801,7 +801,12 @@ class YandexRegisterView(APIView):
 
             return Response(
                 data={
+                    'id': new.id,
                     'token': serializer.data.get('token', None),
+                    'email': email,
+                    'date_of_birth': date_of_birth,
+                    'username': username,
+                    'phone': phone,
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -872,7 +877,12 @@ class VKRegisterView(APIView):
 
             return Response(
                 data={
+                    'id': new.id,
                     'token': serializer.data.get('token', None),
+                    'username': username,
+                    'phone': phone,
+                    'email': email,
+                    'date_of_birth': birth_day,
                 },
                 status=status.HTTP_201_CREATED,
             )
