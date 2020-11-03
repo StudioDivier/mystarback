@@ -517,9 +517,11 @@ response:
 request:
 
     {
-        "access_token": "48863fb494f7120a41198965bf1374268ac6a5f7f7ab54626e24795efaf41ad8f53dc669492917cfcdc11",
-        "phone": 7899879856,
-        "email": "sdgsd@gf.com"
+        "access_token": "d028aac7df00539a647939f7ed009323937901854f014336dcce3e88b8ef41d527afd70952bc91531260b",
+        "expires_in": 0,
+        "user_id": 331186264,
+        "email": "natsume.ace@gmail.com",
+        "phone": 9843548719
     }
     
 response:
@@ -534,7 +536,7 @@ response:
     }
     
 ## LOGIN
-* http://localhost/api/yandex-login/ - [POST] запрос
+* http://localhost/api/vk-login/ - [POST] запрос
 
 request:
 

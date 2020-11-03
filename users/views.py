@@ -883,6 +883,7 @@ class VKRegisterView(APIView):
                     'phone': phone,
                     'email': email,
                     'date_of_birth': birth_day,
+                    'is_star': new.is_star,
                 },
                 status=status.HTTP_201_CREATED,
             )

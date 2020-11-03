@@ -331,7 +331,6 @@ class YandexUsers(models.Model):
 class VkUsers(models.Model):
     id_vk = models.BigIntegerField(name='id_vk', unique=True)
     access_token = models.CharField(name='access_token', max_length=256)
-    refresh_token = models.CharField(name='refresh_token', max_length=256)
     expires_in = models.BigIntegerField(name='expires_in')
 
     def __str__(self):
