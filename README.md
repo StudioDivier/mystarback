@@ -336,7 +336,7 @@ response:
     
     
 # Request Form for Stars
-* https://exprome.ru:8080/api/registration/ -[POST]
+* https://exprome.ru:8080/api/form-request/star/ -[POST]
 
 request:
 
