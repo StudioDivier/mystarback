@@ -331,6 +331,7 @@ class LoginSerializer(serializers.Serializer):
                 'Этот пользователь был деактивирован.'
             )
 
+
         return [{
             'token': user.token,
         }]

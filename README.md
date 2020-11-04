@@ -333,7 +333,33 @@ response:
 request(multipart/formdata):
 response:
     ![](readme/cong.png)
+    
+    
+# Request Form for Stars
+* https://exprome.ru:8080/api/registration/ -[POST]
 
+request:
+
+    {
+        "name": "Ваенга",
+        "phone": 9874563245,
+        "email": "vaenga@singer.co"
+    }
+
+response:
+    
+    201
+    [
+    "Ваша заявка отправлена успешно."
+    ]
+    
+    or
+    
+    400
+    [
+    "Были предоставлены неверные данные."
+    ]
+    
 
 # Messages
 ## Отправка сообщения
