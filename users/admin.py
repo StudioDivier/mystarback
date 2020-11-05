@@ -7,7 +7,7 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 
 from django.contrib import admin
-from .models import Users, Stars, Customers, Categories, Orders, Avatars, Videos, CatPhoto
+from .models import Users, Stars, Customers, Categories, Orders, Avatars, Videos, CatPhoto, RequestsForm
 
 
 class UserCreationForm(forms.ModelForm):
@@ -124,7 +124,13 @@ class OrdersAdmin(admin.ModelAdmin):
         }),
     )
 
+@admin.register(RequestsForm)
+class RequestFormAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'phone')
+
+
+
 admin.site.register(Avatars)
 admin.site.register(Videos)
 admin.site.register(CatPhoto)
-# admin.site.register(TestAdmin)
+

@@ -3,7 +3,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from .models import Customers, Stars, Users, Ratings, Orders, Categories, Avatars, Videos, \
-    Congratulations, Likes, MessageChats
+    Congratulations, Likes, MessageChats, RequestsForm
 
 
 class AvatarSerializer(serializers.ModelSerializer):
@@ -289,7 +289,26 @@ class LikeSerializer(serializers.ModelSerializer):
         fields = ('star_id', 'cust_id', )
 
 
-class LoginSerializer(serializers.Serializer):
+class RequestSerializer(serializers.ModelSerializer):
+
+    name = serializers.CharField(
+        max_length=32,
+        validators=[UniqueValidator(queryset=RequestsForm.objects.all())]
+                                     )
+    phone = serializers.IntegerField(
+        validators=[UniqueValidator(queryset=RequestsForm.objects.all())]
+    )
+    email = serializers.EmailField(
+        required=True,
+        validators=[UniqueValidator(queryset=RequestsForm.objects.all())]
+    )
+
+    class Meta:
+        model = RequestsForm
+        fields = ('name', 'phone', 'email')
+
+
+class LoginSerializerOauth(serializers.Serializer):
     """
     Authenticates an existing user.
     Email and password are required.
@@ -331,6 +350,66 @@ class LoginSerializer(serializers.Serializer):
                 'Этот пользователь был деактивирован.'
             )
 
+
+        return [{
+            'token': user.token,
+        }]
+
+
+
+class LoginSerializer(serializers.Serializer):
+    """
+    Authenticates an existing user.
+    Email and password are required.
+    Returns a JSON web token.
+    """
+    login = serializers.CharField(max_length=255, write_only=True)
+    password = serializers.CharField(max_length=128, write_only=True)
+
+    # Ignore these fields if they are included in the request.
+    #token = serializers.CharField(max_length=255, read_only=True)
+
+    def validate(self, data):
+        """
+        Validates user data.
+        """
+        login= data.get('login', None)
+        password = data.get('password', None)
+
+
+        if login is None:
+            raise serializers.ValidationError(
+                'Для входа в систему требуется адрес электронной почты или логин.(1)'
+            )
+
+        if password is None:
+            raise serializers.ValidationError(
+                'Для входа в систему требуется пароль.(1)'
+            )
+
+        if '@' in login:
+            kwargs = {'email': login}
+        else:
+            kwargs = {'username': login}
+
+        try:
+            user = Users.objects.get(**kwargs)
+        except Users.DoesNotExist:
+            raise serializers.ValidationError(
+                'Пользователь с таким логином и паролем не найден.(1.1)'
+            )
+
+        # user = authenticate(**kwargs)
+
+        if user is None:
+            raise serializers.ValidationError(
+                'Пользователь с таким логином и паролем не найден.(1)'
+            )
+
+        if not user.is_active:
+            raise serializers.ValidationError(
+                'Этот пользователь был деактивирован.'
+            )
 
         return [{
             'token': user.token,

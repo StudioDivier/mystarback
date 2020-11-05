@@ -36,7 +36,7 @@ def nameVideoFile(instance, filename):
 
 
 def congratulationFile(instance, filename):
-    filename = str(uuid.uuid4()) + '.mp4'
+    filename = str(uuid.uuid4()) + '.jpeg'
     return '/'.join(['congratulation', str(instance.star_id), filename])
 
 
@@ -73,8 +73,8 @@ class Videos(models.Model):
 
 
 class Congratulations(models.Model):
-    star_id = models.IntegerField(name='star_id', unique=True)
-    video_con = models.FileField(upload_to=congratulationFile)
+    star_id = models.IntegerField(name='star_id')
+    video_con = models.ImageField(upload_to=congratulationFile)
     order_id = models.IntegerField(name='order_id', unique=True)
 
     class Meta:
@@ -302,13 +302,13 @@ class Orders(models.Model):
 @receiver(reset_password_token_created)
 def password_reset_token_created(sender, instance, reset_password_token, *args, **kwargs):
 
-    email_plaintext_message = "http://127.0.0.1:8000{}confirm/?token={}".format(
+    email_plaintext_message = "https://exprome.ru{}confirm/?token={}".format(
         reverse('password_reset:reset-password-request'
                 ), reset_password_token.key)
 
     send_mail(
         # title:
-        "Password Reset for {title}".format(title="Some website title"),
+        "Password Reset for {title}".format(title="EXPROME"),
         # message:
         email_plaintext_message,
         # from:
@@ -335,3 +335,16 @@ class VkUsers(models.Model):
 
     def __str__(self):
         return str(self.id_vk)
+
+
+class RequestsForm(models.Model):
+    name = models.CharField(name='name', max_length=256)
+    phone = models.BigIntegerField(name='phone')
+    email = models.EmailField(name='email')
+
+    def __str__(self):
+        return str(self.name)
+
+    class Meta:
+        verbose_name = 'Request'
+        verbose_name_plural = 'Requests'

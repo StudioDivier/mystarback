@@ -22,12 +22,13 @@ from MyStar import config
 
 from django.forms.models import model_to_dict
 
-from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers, CatPhoto
-from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats
+from .models import Customers, Stars, Ratings, Orders, Users, Categories, Likes, VkUsers, CatPhoto, YandexUsers
+from .models import Avatars, Videos, Congratulations, CatPhoto, YandexUsers, MessageChats, RequestsForm, VkUsers
 from .serializers import LoginSerializer, UserSerializer, RegistrationSerializer, CategorySerializer
 from .serializers import CustomerSerializer, StarSerializer, RatingSerializer, OrderSerializer, AvatarSerializer
 from .serializers import VideoSerializer, CongratulationSerializer, ProfileCustomerSerializer, ProfileStarSerializer
-from .serializers import LikeSerializer, MessageChatsSerializer, RegistrationStarSerializer
+from .serializers import LikeSerializer, MessageChatsSerializer, RegistrationStarSerializer, RequestSerializer
+from .serializers import LoginSerializerOauth
 
 from .services.auth import yandex, vk
 from .services.database import put
@@ -82,7 +83,14 @@ class LoginAPIView(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
-            cust_set = Users.objects.get(email=request.data['email'])
+
+            if '@' in request.data['login']:
+                kwargs = {'email': request.data['login']}
+            else:
+                kwargs = {'username': request.data['login']}
+
+            cust_set = Users.objects.get(**kwargs)
+
             try:
                 ava = Avatars.objects.get(username=cust_set.avatar)
                 avatar = str(ava.image)
@@ -236,10 +244,7 @@ class StarByCategory(APIView):
                 for j in range(len(avatar_data)):
                     if json[i]['username'] == avatar_data[j]['username']:
                         json[i]['avatar'] = avatar_data[j]['image']
-                        user = Users.objects.get(username=json[i]['username'])
-
-                        video = Videos.objects.get(username=user.username)
-
+                        video = Videos.objects.get(username=json[i]['username'])
                         json[i]['video'] = video.video_hi.url
 
             try:
@@ -425,7 +430,7 @@ class OrderPay(APIView):
 
     def get(self, request, format='json'):
         order_id = request.GET.get("order_id", "")
-        link = config.url + 'payments/?order_id={}'.format(order_id)
+        link = 'https://exprome.ru:8080/payments/?order_id={}'.format(order_id)
         return Response({'link': link}, status=status.HTTP_200_OK)
 
 
@@ -574,6 +579,15 @@ class PersonalAccount(APIView):
             star_set = Stars.objects.get(users_ptr_id=user_id)
             star_cust = ProfileStarSerializer(star_set)
             json = star_cust.data
+
+            try:
+                ava = Avatars.objects.get(username=star_set.avatar)
+                avatar = str(ava.image)
+            except Avatars.DoesNotExist:
+                avatar = 'Нет фото'
+
+            json['avatar'] = avatar
+
             try:
                 set = Likes.objects.filter(star_id=user_id).count()
                 json['likes'] = set
@@ -634,9 +648,20 @@ class CongratulationView(APIView):
     parser_classes = (MultiPartParser,)
 
     @logger.catch()
-    def post(self, request, *args, **kwargs):
+    def put(self, request, *args, **kwargs):
+        try:
+            # file_obj = request.FILES
+            # request.data['video_con'] = file_obj
+            file_serializer = CongratulationSerializer(data=request.data)
+        except:
+            return Response({"Неудачная попытка, вот че пришло:":
+                                 {
+                                     'video_con': str(request.data['video_con']),
+                                     'star_id': request.data['star_id'],
+                                     'order_id': request.data['order_id']
+                                  }
+                             }, status=status.HTTP_418_IM_A_TEAPOT)
 
-        file_serializer = CongratulationSerializer(data=request.data)
         if file_serializer.is_valid():
             video = file_serializer.save()
             if video:
@@ -653,6 +678,7 @@ class CongratulationView(APIView):
             return Response(file_serializer.data, status=status.HTTP_201_CREATED)
         else:
             return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class OrderDetailCustomerView(APIView):
@@ -757,6 +783,12 @@ class MidYandexView(APIView):
     def get(self, request, format='json'):
         code = request.GET.get("code", "")
         response = yandex.token(code)
+        #
+        # try:
+        #     us = YandexUsers.objects.get(access_token=response['access_token'])
+        #     response['new'] = 0
+        # except VkUsers.DoesNotExist:
+        #     response['new'] = 1
 
         return Response(response, status=status.HTTP_201_CREATED)
 
@@ -773,8 +805,8 @@ class YandexRegisterView(APIView):
             date_of_birth = '2000-05-05'
         else:
             date_of_birth = response['birthday']
-        avatar = response['default_avatar_id']
-        phone = '000000000000'
+        # avatar = response['default_avatar_id']
+        phone = request.data['phone']
         data = {
             'username': username,
             'phone': phone,
@@ -790,7 +822,7 @@ class YandexRegisterView(APIView):
 
             new = Users.objects.get(username=username)
             new.register = 'yandex'
-            new.avatar = avatar
+            # new.avatar = avatar
             new.save()
 
             yandex_data = YandexUsers.objects.create(id_yandex=response['id'],
@@ -807,6 +839,7 @@ class YandexRegisterView(APIView):
                     'date_of_birth': date_of_birth,
                     'username': username,
                     'phone': phone,
+                    'is_star': new.is_star
                 },
                 status=status.HTTP_201_CREATED,
             )
@@ -824,7 +857,6 @@ class PreVKView(APIView):
         json = {'link': response}
         return Response(json, status=status.HTTP_200_OK)
 
-
 class MidVKView(APIView):
     permission_classes = [AllowAny]
 
@@ -840,13 +872,17 @@ class VKRegisterView(APIView):
     serializer_class = RegistrationSerializer
 
     def post(self, request, format='json'):
-        response = vk.vk_auth(request.data['access_token'])
+        try:
+            response = vk.vk_auth(request.data['access_token'])
+        except KeyError:
+            return Response({'access_token not found'}, status=status.HTTP_400_BAD_REQUEST)
         username = response['screen_name']
         f_name = response['first_name']
         l_name = response['last_name']
-        birth_day = response['bdate']
+        # birth_day = response['bdate']
+        birth_day = '2000-05-05'
         pword = response['id']
-        photo = response['photo_max_orig']
+        # photo = response['photo_max_orig']
         phone = request.data['phone']
         email = request.data['email']
         data = {
@@ -864,15 +900,14 @@ class VKRegisterView(APIView):
 
             new = Users.objects.get(username=username)
             new.register = 'vk'
-            new.avatar = photo
+            # new.avatar = photo
             new.first_name = f_name
             new.last_name = l_name
             new.save()
 
-            vk_data = VkUsers.objects.create(id_yandex=response['id'],
-                                                     access_token=request.data['access_token'],
-                                                     refresh_token=request.data['refresh_token'],
-                                                     expires_in=request.data['expires_in'])
+            vk_data = VkUsers.objects.create(id_vk=response['id'],
+                                             access_token=request.data['access_token'],
+                                             expires_in=request.data['expires_in'])
             vk_data.save()
 
             return Response(
@@ -883,17 +918,18 @@ class VKRegisterView(APIView):
                     'phone': phone,
                     'email': email,
                     'date_of_birth': birth_day,
-                    'is_star': new.is_star,
+                    'is_star': new.is_star
                 },
                 status=status.HTTP_201_CREATED,
             )
-        return Response(response, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
 
 # Login via Yandex API
+
 class YandexLogInView(APIView):
     permission_classes = [AllowAny]
-    serializer_class = LoginSerializer
+    serializer_class = LoginSerializerOauth
 
     def post(self, request, format='format'):
         response = yandex.ya_auth(request.data['access_token'])
@@ -921,22 +957,29 @@ class YandexLogInView(APIView):
 
 
 # Login via VK API
+
 class VKLogInView(APIView):
+    """
+    Вьюшка с методом POST, но она думает, то тут GET
+    """
     permission_classes = [AllowAny]
-    serializer_class = LoginSerializer
+    serializer_class = LoginSerializerOauth
 
     def post(self, request, format='format'):
-        response = vk.vk_auth(request.data['access_token'])
+        try:
+            response = vk.vk_auth(request.data['access_token'])
+        except KeyError:
+            return Response({'access_token not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         data_log = {
-                    "email": response['default_email'],
+                    "email": request.data['email'],
                     "password": response['id']
                 }
 
         serializer = self.serializer_class(data=data_log)
 
         if serializer.is_valid():
-            cust_set = Customers.objects.get(email=response['default_email'])
+            cust_set = Customers.objects.get(email=request.data['email'])
             json = {
                 'id': cust_set.id,
                 'username': cust_set.username,
@@ -949,14 +992,47 @@ class VKLogInView(APIView):
             return Response(json, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
 
-# test
-class TestView(APIView):
+    def get(self, request, format='format'):
+        access_token = request.GET.get("access_token", "")
+        email = request.GET.get("email", "")
+        try:
+            response = vk.vk_auth(access_token)
+        except KeyError:
+            return Response({'access_token not found'}, status=status.HTTP_400_BAD_REQUEST)
+
+        data_log = {
+                    "email": email,
+                    "password": response['id']
+                }
+
+        serializer = self.serializer_class(data=data_log)
+
+        if serializer.is_valid():
+            cust_set = Customers.objects.get(email=email)
+            json = {
+                'id': cust_set.id,
+                'username': cust_set.username,
+                'phone': cust_set.phone,
+                'is_star': cust_set.is_star,
+                'email': cust_set.email,
+                'avatar': cust_set.avatar,
+                'token': cust_set.token
+            }
+            return Response(json, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_404_NOT_FOUND)
+
+# send request form for new start
+class RequestView(APIView):
     permission_classes = [AllowAny]
 
-    def get(self, request, format='json'):
-        set = Likes.objects.filter(star_id=request.data['star_id']).count()
-
-        return Response(set, status=status.HTTP_200_OK)
+    @logger.catch()
+    def post(self, request, format='json'):
+        set = RequestSerializer(data=request.data)
+        if set.is_valid():
+            form = set.save()
+            return Response({'Ваша заявка отправлена успешно.'}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({'были предоставлены неверные данные.'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

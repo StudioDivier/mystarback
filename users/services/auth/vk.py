@@ -5,7 +5,7 @@ from MyStar import config
 
 client_id = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_KEY
 client_secret = config.OAUTHDATA.SOCIAL_AUTH_VK_OAUTH2_SECRET
-redirect = config.url + 'api/mid-vk/'
+redirect = 'https://exprome.ru/api/mid-vk/'
 
 
 def send_request():
@@ -51,7 +51,7 @@ def vk_auth(r):
         'v': 5.124
     }
 
-    response = re.get(url=auth, params=auth_param)
+    response = re.post(url=auth, data=auth_param)
     s = json.loads(response.content)
     data = s['response'][0]
     return data
