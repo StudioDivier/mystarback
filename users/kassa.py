@@ -15,6 +15,8 @@ from users.serializers import OrderSerializer
 from users.models import Orders
 from loguru import logger
 
+# config by loguru
+# config
 logger.add("log/debug.json", level="DEBUG", format="{time} {level} {message}", serialize=True,
            rotation="1 MB", compression="zip")
 
@@ -31,7 +33,10 @@ class YandexPayment(APIView):
     @logger.catch()
     def get(self, type_id):
         """
-        Принимаем payment_id
+        Принимаем payment_id [GET]
+        Создаем платеж
+        Меняем статус платежа
+        Сохраняем
         :param request:
         :param format:
         :return:

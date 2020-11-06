@@ -21,26 +21,57 @@ import uuid
 
 
 def nameFile(instance, filename):
+    """
+    Сохраяем в каталог файл при загрузке
+    Аватар пользователей
+    :param instance:
+    :param filename:
+    :return:
+    """
     filename = str(uuid.uuid4()) + '.jpeg'
     return '/'.join(['avatars', filename])
 
 
 def nameCat(instance, filename):
+    """
+    Сохраяем в каталог файл при загрузке
+    Изображение категории
+    :param instance:
+    :param filename:
+    :return:
+    """
     filename = str(uuid.uuid4()) + '.svg'
     return '/'.join(['categories', filename])
 
 
 def nameVideoFile(instance, filename):
+    """
+    Сохраяем в каталог файл при загрузке
+    Видео
+    :param instance:
+    :param filename:
+    :return:
+    """
     filename = str(uuid.uuid4()) + '.mp4'
     return '/'.join(['videos', str(instance.username), filename])
 
 
 def congratulationFile(instance, filename):
-    filename = str(uuid.uuid4()) + '.jpeg'
+    """
+    Сохраяем в каталог файл при загрузке
+    Видео поздравление
+    :param instance:
+    :param filename:
+    :return:
+    """
+    filename = str(uuid.uuid4()) + '.mp4'
     return '/'.join(['congratulation', str(instance.star_id), filename])
 
 
 class CatPhoto(models.Model):
+    """
+    Модель для фото категорий
+    """
     category = models.CharField(name='category', unique=True, max_length=128)
     image = models.FileField(upload_to=nameCat)
 
@@ -49,6 +80,9 @@ class CatPhoto(models.Model):
 
 
 class Avatars(models.Model):
+    """
+    Модель для фото аватарок
+    """
     username = models.CharField(name='username', unique=True, max_length=128)
     image = models.ImageField(upload_to=nameFile)
 
@@ -61,6 +95,9 @@ class Avatars(models.Model):
 
 
 class Videos(models.Model):
+    """
+    Модель для видео
+    """
     username = models.CharField(name='username', unique=True, max_length=128)
     video_hi = models.FileField(upload_to=nameVideoFile)
 
@@ -73,8 +110,11 @@ class Videos(models.Model):
 
 
 class Congratulations(models.Model):
+    """
+    Модель для видео поздравление
+    """
     star_id = models.IntegerField(name='star_id')
-    video_con = models.ImageField(upload_to=congratulationFile)
+    video_con = models.FileField(upload_to=congratulationFile)
     order_id = models.IntegerField(name='order_id', unique=True)
 
     class Meta:
@@ -250,6 +290,9 @@ class Stars(Users):
 
 
 class Likes(models.Model):
+    """
+    Модель для лайков
+    """
     star_id = models.IntegerField(name='star_id')
     cust_id = models.IntegerField(name='cust_id')
     like = models.BooleanField(name='like', default=1)
@@ -259,6 +302,9 @@ class Likes(models.Model):
 
 
 class MessageChats(models.Model):
+    """
+    Модель для сообщений между поьлователями
+    """
     chat_id = models.IntegerField(name='chat_id')
     from_user = models.IntegerField(name='from_user')
     message_id = models.IntegerField(name='message_id')
@@ -319,6 +365,9 @@ def password_reset_token_created(sender, instance, reset_password_token, *args, 
 
 
 class YandexUsers(models.Model):
+    """
+    Модель для отслеживания пользователей юзеров
+    """
     id_yandex = models.BigIntegerField(name='id_yandex', unique=True)
     access_token = models.CharField(name='access_token', max_length=256)
     refresh_token = models.CharField(name='refresh_token', max_length=256)
@@ -329,6 +378,9 @@ class YandexUsers(models.Model):
 
 
 class VkUsers(models.Model):
+    """
+    Модель для отслеживания поьлзователей из вк
+    """
     id_vk = models.BigIntegerField(name='id_vk', unique=True)
     access_token = models.CharField(name='access_token', max_length=256)
     expires_in = models.BigIntegerField(name='expires_in')
@@ -338,6 +390,9 @@ class VkUsers(models.Model):
 
 
 class RequestsForm(models.Model):
+    """
+    Модель для формы создания звезды
+    """
     name = models.CharField(name='name', max_length=256)
     phone = models.BigIntegerField(name='phone')
     email = models.EmailField(name='email')

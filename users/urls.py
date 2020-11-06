@@ -6,6 +6,7 @@ LoginAPIView, StarOrderAccepted, ListCategory, AvatarUploadView, VideohiView, Co
 PreYandexView, YandexRegisterView, MidYandexView, OrdersListView, YandexLogInView, LikesView, RequestView,
 MessageView, PreVKView, MidVKView, VKRegisterView, VKLogInView, StarTagFilter, OrderPay, OrderPayCapture,
 )
+from .views import PreGoogleView, MidGoogleView
 
 from MyStar import settings
 from django.conf import settings
@@ -43,6 +44,10 @@ urlpatterns = [
 
     path('personal/', PersonalAccount.as_view(), name=None),
     path('message/', MessageView.as_view(), name=None),
+
+    # google register
+    path('pre-google-oauth/', PreGoogleView.as_view(), name=None),
+    path('mid-google/', MidGoogleView.as_view(), name=None),
 
     # yandex register
     path('pre-yandex-oauth/', PreYandexView.as_view(), name=None),

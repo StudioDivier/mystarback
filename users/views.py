@@ -511,11 +511,11 @@ class OrdersListView(APIView):
                 return Response(response, status=status.HTTP_200_OK)
 
         if is_star == 'false':
-            user_set = Users.objects.get(id=user_id)
+            user_set = Customers.objects.get(users_ptr_id=user_id)
             username = user_set.username
 
             try:
-                order_set = Orders.objects.filter(customer_id=user_id)
+                order_set = Orders.objects.filter(customer_id_id=user_id)
                 serial_orders = OrderSerializer(order_set, many=True)
 
                 json = serial_orders.data
@@ -536,7 +536,7 @@ class OrdersListView(APIView):
                     json[i]['star_avatar'] = avatar_user
                     json[i]['cat_name'] = cat_id
                     try:
-                        video = Congratulations.objects.get(star_id=set_star.id)
+                        video = Congratulations.objects.get(order_id=order_set[i].id)
                         json[i]['video'] = str(video.video_con)
                     except Congratulations.DoesNotExist:
                         json[i]['video'] = 'Видео не готово'
@@ -648,36 +648,48 @@ class CongratulationView(APIView):
     parser_classes = (MultiPartParser,)
 
     @logger.catch()
-    def put(self, request, *args, **kwargs):
-        try:
-            # file_obj = request.FILES
-            # request.data['video_con'] = file_obj
-            file_serializer = CongratulationSerializer(data=request.data)
-        except:
-            return Response({"Неудачная попытка, вот че пришло:":
-                                 {
-                                     'video_con': str(request.data['video_con']),
-                                     'star_id': request.data['star_id'],
-                                     'order_id': request.data['order_id']
-                                  }
-                             }, status=status.HTTP_418_IM_A_TEAPOT)
+    def post(self, request, *args, **kwargs):
 
-        if file_serializer.is_valid():
-            video = file_serializer.save()
-            if video:
-                order = Orders.objects.get(id=request.data['order_id'])
-                cust_username = order.customer_id.username
-                cust_email = order.customer_id.email
-                star = Stars.objects.get(id=request.data['star_id'])
-                star_username = star.username
-                SUBJECT = 'EXPROME: Уведомление!'
-                TEXT_MESASGE = 'Уважаемый {}, Вам пришло видео поздравление '.format(
-                    cust_username, star_username
-                )
-                send_mail(SUBJECT, TEXT_MESASGE, settings.EMAIL_HOST_USER, [cust_email])
-            return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+        set = Congratulations.objects.filter(order_id=request.data['order_id']).count()
+        if set == 1:
+            return Response({'Вы уже загрузили видео'}, status=status.HTTP_200_OK)
+
         else:
-            return Response(file_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                # file_obj = request.FILES
+                # request.data['video_con'] = file_obj
+                file_serializer = CongratulationSerializer(data=request.data)
+            except:
+                return Response({"Неудачная попытка, вот че пришло:":
+                                     {
+                                         'video_con': str(request.data['video_con']),
+                                         'star_id': request.data['star_id'],
+                                         'order_id': request.data['order_id']
+                                      }
+                                 }, status=status.HTTP_418_IM_A_TEAPOT)
+
+            if file_serializer.is_valid():
+                video = file_serializer.save()
+                if video:
+                    order = Orders.objects.get(id=request.data['order_id'])
+                    cust_username = order.customer_id.username
+                    cust_email = order.customer_id.email
+                    star = Stars.objects.get(id=request.data['star_id'])
+                    star_username = star.username
+                    SUBJECT = 'EXPROME: Уведомление!'
+                    TEXT_MESASGE = 'Уважаемый {}, Вам пришло видео поздравление '.format(
+                        cust_username, star_username
+                    )
+                    send_mail(SUBJECT, TEXT_MESASGE, settings.EMAIL_HOST_USER, [cust_email])
+                return Response(file_serializer.data, status=status.HTTP_201_CREATED)
+            else:
+                return Response({'данные невалид':
+                    {
+                        'video_con': str(request.data['video_con']),
+                        'star_id': request.data['star_id'],
+                        'order_id': request.data['order_id']
+                    }
+                }, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -761,6 +773,41 @@ class LikesView(APIView):
                 serializer.save()
                 return Response({"Оценка выставлена"}, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Register via Google
+class PreGoogleView(APIView):
+    permission_classes = [AllowAny]
+
+    @logger.catch()
+    def get(self, request, format='json'):
+        response = yandex.send_request()
+        json = {'link': 'https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?'
+                        'redirect_uri=https://exprome.ru/&'
+                        'prompt=consent&'
+                        'response_type=code&'
+                        'client_id=506165388319-il6eo99u4u3akgr7ul32uaj9jsgvjq05.apps.googleusercontent.com&'
+                        'scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile%20openid&'
+                        'access_type=offline&'
+                        'flowName=GeneralOAuthFlow'}
+
+        return Response(json, status=status.HTTP_200_OK)
+
+
+class MidGoogleView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, format='json'):
+        code = request.GET.get("code", "")
+        response = yandex.token(code)
+        #
+        # try:
+        #     us = YandexUsers.objects.get(access_token=response['access_token'])
+        #     response['new'] = 0
+        # except VkUsers.DoesNotExist:
+        #     response['new'] = 1
+
+        return Response(response, status=status.HTTP_201_CREATED)
 
 
 # Register via Yandex API

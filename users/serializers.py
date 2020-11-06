@@ -21,7 +21,7 @@ class VideoSerializer(serializers.ModelSerializer):
 class CongratulationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Congratulations
-        fields = ('star_id', 'video_con', 'order_id')
+        fields = ('__all__')
 
 
 class UserSerializer(serializers.ModelSerializer):
