@@ -1,6 +1,7 @@
 import jwt
 from taggit.managers import TaggableManager
 
+
 from datetime import datetime
 from datetime import timedelta
 
@@ -274,15 +275,16 @@ class Stars(Users):
      rating - отсылка к модели Рейтинга
      video_hi - видео приветствие от звезды
     """
-    price = models.DecimalField(name='price', max_digits=9, decimal_places=2)
-    cat_name_id = models.ForeignKey(Categories, to_field='id', on_delete=models.CASCADE)
-    rating = models.IntegerField(name='rating')
-    days = models.CharField(name='days', default='0', max_length=8)
+    price = models.DecimalField(name='price', max_digits=9, decimal_places=2, verbose_name='Ценник')
+    cat_name_id = models.ForeignKey(Categories, to_field='id',verbose_name='Категория', on_delete=models.CASCADE)
+    rating = models.IntegerField(name='rating', verbose_name='Рейтинг')
+    days = models.CharField(name='days', verbose_name='Дни выполнения заказа', default='0', max_length=8)
     # video_hi = models.FilePathField(name='video_hi', path=settings.VIDEO_ROOT, default='/videos/012155be-4a77-4fdd-adbc-4121c5dceda0.mp4')
-    video_hi = models.ForeignKey(Videos, on_delete=models.CASCADE, blank=True, null=True)
-    profession = models.CharField(name='profession', max_length=32)
+    video_hi = models.ForeignKey(Videos, on_delete=models.CASCADE, verbose_name='Видео-приветствие', blank=True, null=True)
+    profession = models.CharField(name='profession', verbose_name='Профессия', max_length=32)
     tags = TaggableManager()
-    description = models.TextField(name='description', max_length=2048)
+    description = models.TextField(name='description', verbose_name='Описание', max_length=2048)
+    sorted = models.IntegerField(name='sorted', verbose_name='Сортировка', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Star'
