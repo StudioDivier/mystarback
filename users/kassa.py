@@ -92,7 +92,7 @@ class YandexNotification(APIView):
         Payment.capture(payment_id)
 
         order = Orders.objects.get(id=order_id)
-        order.status_order = 3
+        order.status_order = 2
         order.save()
 
         return Response(status=200)
